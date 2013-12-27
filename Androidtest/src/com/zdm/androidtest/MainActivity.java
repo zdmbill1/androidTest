@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 
 public class MainActivity extends Activity {
@@ -21,9 +20,7 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		Button btn_send = (Button) findViewById(R.id.button1);
-		
-		
+//		Button btn_send = (Button) findViewById(R.id.button1);		
 		//直接调用destroy
 //		finish();
 		// 覆盖来layout里面设置的onclick方法
