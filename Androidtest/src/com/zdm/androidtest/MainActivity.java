@@ -22,6 +22,7 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 
 		Button btn_send = (Button) findViewById(R.id.button1);
+		
 		//直接调用destroy
 //		finish();
 		// 覆盖来layout里面设置的onclick方法
