@@ -1,4 +1,0 @@
-androidTest
-===========
-
-android test
