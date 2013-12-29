@@ -4,7 +4,8 @@ import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
+import android.hardware.Camera;
+import android.hardware.Camera.Parameters;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -12,10 +13,11 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.zdm.tools.intentservice.FlashLightIntentService;
 
 /**
  * @author zdm mail to :zdmbill@163.com 依次start多个service不是阻塞式
@@ -24,6 +26,11 @@ public class MainActivity extends Activity implements SensorEventListener {
 	private SensorManager sManager;
 	private Sensor sLight, sShake;
 
+	private boolean isopent = false;
+	private Camera camera;
+	
+	private Button powerBt;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -68,7 +75,39 @@ public class MainActivity extends Activity implements SensorEventListener {
 				.getName() + "");
 		sLight = sManager.getDefaultSensor(Sensor.TYPE_LIGHT);
 		sShake = sManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+
+		powerBt = (Button) findViewById(R.id.powerBt);
+		powerBt.setText("Open");
+
+		powerBt.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				if (!isopent) {
+					Toast.makeText(getApplicationContext(), "您已经打开了手电筒",
+							Toast.LENGTH_SHORT).show();
+					powerBt.setText("Off");
+					camera = Camera.open();
+					Parameters params = camera.getParameters();
+					params.setFlashMode(Parameters.FLASH_MODE_TORCH);
+					camera.setParameters(params);
+					camera.startPreview(); // 开始亮灯
+					isopent = true;
+				} else {
+					Toast.makeText(getApplicationContext(), "关闭了手电筒",
+							Toast.LENGTH_SHORT).show();
+					powerBt.setText("Open");
+					camera.stopPreview(); // 关掉亮灯
+					camera.release(); // 关掉照相机
+					isopent = false;
+				}
+			}
+		});
 	}
+	//TODO 绑定锁屏/解锁
+	//TODO 后台实现（用IntentService?）
+	//TODO 屏幕各种颜色设定
+	//TODO 开关时间设定
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -83,10 +122,12 @@ public class MainActivity extends Activity implements SensorEventListener {
 
 	}
 
-	float[] gravity=new float[3], linear_acceleration=new float[3];
+	float[] gravity = new float[3], linear_acceleration = new float[3];
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {
+		//TODO 判断摇晃
+		//TODO 摇晃程度判断&摇晃程度设定
 		// In this example, alpha is calculated as t / (t + dT),
 		// where t is the low-pass filter's time-constant and
 		// dT is the event delivery rate.
@@ -105,11 +146,14 @@ public class MainActivity extends Activity implements SensorEventListener {
 
 		// TODO Auto-generated method stub
 		String sName = event.sensor.getName();
-//		Log.w("sensor", "x=" + event.values[0] + " y=" + event.values[1]
-//				+ " z=" + event.values[2] + " sum="
-//				+ (event.values[0] + event.values[1] + event.values[2]));
-		Log.w("sensor", "gravity[0]="+gravity[0]+"gravity[1]="+gravity[1]+"gravity[2]="+gravity[2]);
-		Log.w("sensor", "linear_[0]="+linear_acceleration[0]+"linear_[1]="+linear_acceleration[1]+"linear_[2]="+linear_acceleration[2]);
+		// Log.w("sensor", "x=" + event.values[0] + " y=" + event.values[1]
+		// + " z=" + event.values[2] + " sum="
+		// + (event.values[0] + event.values[1] + event.values[2]));
+		Log.w("sensor", "gravity[0]=" + gravity[0] + "gravity[1]=" + gravity[1]
+				+ "gravity[2]=" + gravity[2]);
+		Log.w("sensor", "linear_[0]=" + linear_acceleration[0] + "linear_[1]="
+				+ linear_acceleration[1] + "linear_[2]="
+				+ linear_acceleration[2]);
 		// Toast.makeText(this,
 		// "现在sensor是"+sName+" value="+event.values[0]+event.sensor.getMaximumRange(),
 		// Toast.LENGTH_LONG).show();
@@ -130,14 +174,17 @@ public class MainActivity extends Activity implements SensorEventListener {
 		super.onResume();
 		// sManager.registerListener(this, sLight,
 		// SensorManager.SENSOR_DELAY_NORMAL);
-		sManager.registerListener(this, sShake,
-				SensorManager.SENSOR_DELAY_NORMAL);
+		// sManager.registerListener(this, sShake,
+		// SensorManager.SENSOR_DELAY_NORMAL);
 	}
 
 	@Override
 	protected void onDestroy() {
 		Log.w("Tools", "destory!!");
-		setContentView(R.layout.viewnull);
+		if (isopent) {
+			camera.stopPreview(); // 关掉亮灯
+			camera.release(); 
+		}
 		super.onDestroy();
 
 		// System.exit(0);
