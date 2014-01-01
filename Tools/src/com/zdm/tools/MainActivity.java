@@ -17,57 +17,42 @@ import android.view.KeyEvent;
 import android.view.WindowManager;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.Switch;
-import android.widget.Toast;
+import android.widget.ToggleButton;
+
+import com.zdm.tools.intent.CloseFlashlightIS;
 
 /**
  * @author zdm mail to :zdmbill@163.com 依次start多个service不是阻塞式
- * android:keepScreenOn="true"保持屏幕常亮
+ *         android:keepScreenOn="true"保持屏幕常亮
  * 
  */
 public class MainActivity extends Activity implements SensorEventListener {
 	private SensorManager sManager;
 	private Sensor sShake;
 
-//	private boolean isopent = false;
+	// private boolean isopent = false;
 	private Camera camera;
 
-	private Switch powerTbt;
+	private ToggleButton powerTbt;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-
 		sManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
-		if (sManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null) {
-			Toast.makeText(
-					this,
-					"TYPE_ACCELEROMETER "
-							+ sManager.getSensorList(Sensor.TYPE_ACCELEROMETER)
-									.size(), Toast.LENGTH_SHORT).show();
-		} else {
-			Toast.makeText(this, "NO TYPE_ACCELEROMETER", Toast.LENGTH_SHORT)
-					.show();
-		}
-
-//		List<Sensor> deviceSensors = sManager.getSensorList(Sensor.TYPE_ALL);
-//		TextView showTv = (TextView) findViewById(R.id.sensorTv);
-//		String sensorStr = "";
-//		for (Sensor s : deviceSensors) {
-//			sensorStr = sensorStr + s.getName() + ",\n";
-//		}
-//
-//		showTv.setText(sensorStr);
-//		sLight = sManager.getDefaultSensor(Sensor.TYPE_LIGHT);
 		sShake = sManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-
-		powerTbt = (Switch) findViewById(R.id.toggleButton1);		
+		
+		if (sShake == null) {
+			//不支持shake
+		} 
+		
+onLowMemory();
+		powerTbt = (ToggleButton) findViewById(R.id.toggleButton1);
 
 		powerTbt.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			
+
 			@Override
 			public void onCheckedChanged(CompoundButton arg0, boolean isChecked) {
 				if (isChecked) {
@@ -77,26 +62,24 @@ public class MainActivity extends Activity implements SensorEventListener {
 					params.setFlashMode(Parameters.FLASH_MODE_TORCH);
 					camera.setParameters(params);
 					camera.startPreview(); // 开始亮灯
-//					isopent = true;
 				} else {
 					Log.w("switch", "您已经关闭了手电筒");
 					camera.stopPreview(); // 关掉亮灯
 					camera.release(); // 关掉照相机
-//					isopent = false;
 				}
-				
+
 			}
 		});
 
-//		powerBt.setOnClickListener(new OnClickListener() {
-//
-//			@Override
-//			public void onClick(View arg0) {
-//				shake();
-//			}
-//		});
+		// powerBt.setOnClickListener(new OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View arg0) {
+		// shake();
+		// }
+		// });
 
-		//在解锁前运行
+		// 在解锁前运行
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
 		// moveTaskToBack(true);
 
@@ -105,47 +88,46 @@ public class MainActivity extends Activity implements SensorEventListener {
 		filter.addAction(Intent.ACTION_SCREEN_ON);
 		filter.addAction(Intent.ACTION_USER_PRESENT);
 		registerReceiver(mBatInfoReceiver, filter);
+
+		CloseIntent = new Intent(this, CloseFlashlightIS.class);
 	}
 
-	private boolean on=false;
+	private Intent CloseIntent;
+
+	private boolean on = false;
 	private final BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(final Context context, final Intent intent) {
 			final String action = intent.getAction();
 			if (Intent.ACTION_SCREEN_ON.equals(action)) {
-				
-				Log.d("broad", "screen is on...");
+
+				Log.w("broad", "screen is on...");
 				sManager.registerListener(MainActivity.this, sShake,
 						SensorManager.SENSOR_DELAY_UI);
-				on=true;
+				on = true;
 			} else if (Intent.ACTION_SCREEN_OFF.equals(action)) {
-				Log.d("broad", "screen is off...");
-				on=false;
+				Log.w("broad", "screen is off...");
+				on = false;
 				sManager.unregisterListener(MainActivity.this);
-//				if (powerTbt.isChecked()) {					
-//					camera.stopPreview(); // 关掉亮灯
-//					camera.release();
-//					isopent=false;
-//					powerTbt.setChecked(false);
-//				}
-				
+
+				startService(CloseIntent);
 			} else if (Intent.ACTION_USER_PRESENT.equals(action)) {
-				Log.d("broad", "ACTION_USER_PRESENT");
+				Log.w("broad", "ACTION_USER_PRESENT");
+				on = false;
 				sManager.unregisterListener(MainActivity.this);
 			}
 		}
 	};
 
-
 	// TODO 屏幕各种颜色设定
 	// TODO 开关时间设定
 
-//	@Override
-//	public boolean onCreateOptionsMenu(Menu menu) {
-//		// Inflate the menu; this adds items to the action bar if it is present.
-//		getMenuInflater().inflate(R.menu.main, menu);
-//		return true;
-//	}
+	// @Override
+	// public boolean onCreateOptionsMenu(Menu menu) {
+	// // Inflate the menu; this adds items to the action bar if it is present.
+	// getMenuInflater().inflate(R.menu.main, menu);
+	// return true;
+	// }
 
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -168,7 +150,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 			lastTime = currectTime;
 			oldSuma = suma;
 			// 建议speed在20以上，越小越灵敏
-			if (speed > 100 && (currectTime - shakeTime) > 1000) {
+			if (speed > 100 && (currectTime - shakeTime) > 1500) {
 				shake();
 				shakeTime = currectTime;
 			}
@@ -179,8 +161,8 @@ public class MainActivity extends Activity implements SensorEventListener {
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
 			Log.w("key", "press back");
-			if(!on){
-			sManager.unregisterListener(MainActivity.this);
+			if (!on) {
+				sManager.unregisterListener(MainActivity.this);
 			}
 			moveTaskToBack(true);
 			return true;
@@ -196,34 +178,24 @@ public class MainActivity extends Activity implements SensorEventListener {
 		if (powerTbt.isChecked()) {
 			Log.w("shake", "您已经打开了手电筒");
 			powerTbt.toggle();
-//			powerBt.setText("Off");
-//			camera = Camera.open();
-//			Parameters params = camera.getParameters();
-//			params.setFlashMode(Parameters.FLASH_MODE_TORCH);
-//			camera.setParameters(params);
-//			camera.startPreview(); // 开始亮灯
-//			isopent = true;
 		} else {
 			Log.w("shake", "您已经关闭了手电筒");
 			powerTbt.toggle();
-//			powerBt.setText("Open");
-//			camera.stopPreview(); // 关掉亮灯
-//			camera.release(); // 关掉照相机
-//			isopent = false;
 		}
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
-		// sManager.unregisterListener(this);
+		if (!on) {
+			Log.w("", "pause unreg");
+			sManager.unregisterListener(MainActivity.this);
+		}
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		// sManager.registerListener(this, sLight,
-		// SensorManager.SENSOR_DELAY_NORMAL);
 		sManager.registerListener(this, sShake, SensorManager.SENSOR_DELAY_UI);
 	}
 
