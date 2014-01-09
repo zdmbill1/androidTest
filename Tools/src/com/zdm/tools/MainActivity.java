@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 /**
  * @author zdm mail to :zdmbill@163.com 依次start多个service不是阻塞式
+ * test
  */
 public class MainActivity extends Activity implements SensorEventListener {
 	private SensorManager sManager;
