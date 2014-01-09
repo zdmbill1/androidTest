@@ -3,7 +3,9 @@
 
     <string name="app_name">Tools</string>
     <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="hello_world">打算做各种工具系列的，暂时只做了手电筒，只有打开本软件和锁屏解锁界面，晃动手机才能开关手电筒。计划下一步加入屏幕手电筒，摇晃程度/次数设置，手电筒常亮时间等设置。欢迎提出宝贵意见。\nmail to:zdmbill@163.com.</string>
     <string name="powerBt">Open/Off</string>
+    <string name="power_on">关灯</string>
+    <string name="power_off">开灯</string>
 
 </resources>

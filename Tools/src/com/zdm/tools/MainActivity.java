@@ -1,9 +1,10 @@
 package com.zdm.tools;
 
-import java.util.List;
-
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.hardware.Camera;
 import android.hardware.Camera.Parameters;
 import android.hardware.Sensor;
@@ -12,114 +13,125 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.view.KeyEvent;
+import android.view.WindowManager;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.ToggleButton;
+
+import com.zdm.tools.intent.CloseFlashlightIS;
 
 /**
  * @author zdm mail to :zdmbill@163.com 依次start多个service不是阻塞式
  * test
+ *         android:keepScreenOn="true"保持屏幕常亮
+ * 
  */
 public class MainActivity extends Activity implements SensorEventListener {
 	private SensorManager sManager;
-	private Sensor sLight, sShake;
+	private Sensor sShake;
 
-	private boolean isopent = false;
+	// private boolean isopent = false;
 	private Camera camera;
-	
-	private Button powerBt;
-	
+
+	private ToggleButton powerTbt;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		Log.w("Tools", Thread.currentThread().getName());
-		// Intent fSer=new Intent(this,FlashLightIntentService.class);
-		// Log.w("Tools", "0");
-		// startService(fSer);
-		// Log.w("Tools", "1");
-		// startService(fSer);
-		// Log.w("Tools", "2");
-		// startService(fSer);
-		// Log.w("Tools", "3");
-		// finish();
-		// stopService(fSer);
-
 		sManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
-		// sManager.getSensorList(Sensor.TYPE_GRAVITY);
-
-		if (sManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null) {
-			Toast.makeText(
-					this,
-					"TYPE_ACCELEROMETER "
-							+ sManager.getSensorList(Sensor.TYPE_ACCELEROMETER)
-									.size(), Toast.LENGTH_SHORT).show();
-		} else {
-			Toast.makeText(this, "NO TYPE_ACCELEROMETER", Toast.LENGTH_SHORT)
-					.show();
-		}
-
-		List<Sensor> deviceSensors = sManager.getSensorList(Sensor.TYPE_ALL);
-		TextView showTv = (TextView) findViewById(R.id.sensorTv);
-		String sensorStr = "";
-		for (Sensor s : deviceSensors) {
-			sensorStr = sensorStr + s.getName() + ",\n";
-		}
-
-		showTv.setText(sensorStr);
-		Log.w("", sManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
-				.getName() + "");
-		sLight = sManager.getDefaultSensor(Sensor.TYPE_LIGHT);
 		sShake = sManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+		
+		if (sShake == null) {
+			//不支持shake
+		} 
+		
+onLowMemory();
+		powerTbt = (ToggleButton) findViewById(R.id.toggleButton1);
 
-		powerBt = (Button) findViewById(R.id.powerBt);
-		powerBt.setText("Open");
-
-		powerBt.setOnClickListener(new OnClickListener() {
+		powerTbt.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
 			@Override
-			public void onClick(View arg0) {
-				if (!isopent) {
-					Toast.makeText(getApplicationContext(), "您已经打开了手电筒",
-							Toast.LENGTH_SHORT).show();
-					powerBt.setText("Off");
+			public void onCheckedChanged(CompoundButton arg0, boolean isChecked) {
+				if (isChecked) {
+					Log.w("switch", "您已经打开了手电筒");
 					camera = Camera.open();
 					Parameters params = camera.getParameters();
 					params.setFlashMode(Parameters.FLASH_MODE_TORCH);
 					camera.setParameters(params);
 					camera.startPreview(); // 开始亮灯
-					isopent = true;
 				} else {
-					Toast.makeText(getApplicationContext(), "关闭了手电筒",
-							Toast.LENGTH_SHORT).show();
-					powerBt.setText("Open");
+					Log.w("switch", "您已经关闭了手电筒");
 					camera.stopPreview(); // 关掉亮灯
 					camera.release(); // 关掉照相机
-					isopent = false;
 				}
+
 			}
 		});
-	}
-	//TODO 绑定锁屏/解锁
-	//TODO 后台实现（用IntentService?）
-	//TODO 屏幕各种颜色设定
-	//TODO 开关时间设定
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
+		// powerBt.setOnClickListener(new OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View arg0) {
+		// shake();
+		// }
+		// });
+
+		// 在解锁前运行
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+		// moveTaskToBack(true);
+
+		final IntentFilter filter = new IntentFilter();
+		filter.addAction(Intent.ACTION_SCREEN_OFF);
+		filter.addAction(Intent.ACTION_SCREEN_ON);
+		filter.addAction(Intent.ACTION_USER_PRESENT);
+		registerReceiver(mBatInfoReceiver, filter);
+
+		CloseIntent = new Intent(this, CloseFlashlightIS.class);
 	}
+
+	private Intent CloseIntent;
+
+	private boolean on = false;
+	private final BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(final Context context, final Intent intent) {
+			final String action = intent.getAction();
+			if (Intent.ACTION_SCREEN_ON.equals(action)) {
+
+				Log.w("broad", "screen is on...");
+				sManager.registerListener(MainActivity.this, sShake,
+						SensorManager.SENSOR_DELAY_UI);
+				on = true;
+			} else if (Intent.ACTION_SCREEN_OFF.equals(action)) {
+				Log.w("broad", "screen is off...");
+				on = false;
+				sManager.unregisterListener(MainActivity.this);
+
+				startService(CloseIntent);
+			} else if (Intent.ACTION_USER_PRESENT.equals(action)) {
+				Log.w("broad", "ACTION_USER_PRESENT");
+				on = false;
+				sManager.unregisterListener(MainActivity.this);
+			}
+		}
+	};
+
+	// TODO 屏幕各种颜色设定
+	// TODO 开关时间设定
+
+	// @Override
+	// public boolean onCreateOptionsMenu(Menu menu) {
+	// // Inflate the menu; this adds items to the action bar if it is present.
+	// getMenuInflater().inflate(R.menu.main, menu);
+	// return true;
+	// }
 
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -127,65 +139,76 @@ public class MainActivity extends Activity implements SensorEventListener {
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {
-		//TODO 判断摇晃
-		//TODO 摇晃程度判断&摇晃程度设定
-		// In this example, alpha is calculated as t / (t + dT),
-		// where t is the low-pass filter's time-constant and
-		// dT is the event delivery rate.
+		// TODO 摇晃程度判断&摇晃程度设定
 
-		final float alpha = (float) 0.8;
+		long currectTime = System.currentTimeMillis();
 
-		// Isolate the force of gravity with the low-pass filter.
-		gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
-		gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
-		gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
+		if (currectTime - lastTime > 100) {
+			float suma = event.values[0] + event.values[1] + event.values[2];
+			long diffTime = currectTime - lastTime;
+			float speed = Math.abs(suma - oldSuma) * 1000 / diffTime;
+			// Log.w("sensor", "speed=" + speed + " sum=" + suma);
+			lastTime = currectTime;
+			oldSuma = suma;
+			// 建议speed在20以上，越小越灵敏
+			if (speed > 100 && (currectTime - shakeTime) > 1500) {
+				shake();
+				shakeTime = currectTime;
+			}
+		}
+	}
 
-		// Remove the gravity contribution with the high-pass filter.
-		linear_acceleration[0] = event.values[0] - gravity[0];
-		linear_acceleration[1] = event.values[1] - gravity[1];
-		linear_acceleration[2] = event.values[2] - gravity[2];
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			Log.w("key", "press back");
+			if (!on) {
+				sManager.unregisterListener(MainActivity.this);
+			}
+			moveTaskToBack(true);
+			return true;
+		}
+		return super.onKeyDown(keyCode, event);
+	}
 
-		// TODO Auto-generated method stub
-		String sName = event.sensor.getName();
-		// Log.w("sensor", "x=" + event.values[0] + " y=" + event.values[1]
-		// + " z=" + event.values[2] + " sum="
-		// + (event.values[0] + event.values[1] + event.values[2]));
-		Log.w("sensor", "gravity[0]=" + gravity[0] + "gravity[1]=" + gravity[1]
-				+ "gravity[2]=" + gravity[2]);
-		Log.w("sensor", "linear_[0]=" + linear_acceleration[0] + "linear_[1]="
-				+ linear_acceleration[1] + "linear_[2]="
-				+ linear_acceleration[2]);
-		// Toast.makeText(this,
-		// "现在sensor是"+sName+" value="+event.values[0]+event.sensor.getMaximumRange(),
-		// Toast.LENGTH_LONG).show();
-		// float lux = event.values[0];
-		// Toast.makeText(this, "现在光亮是"+lux, Toast.LENGTH_LONG).show();
+	private float oldSuma = 0;
+	private long lastTime = 0;
+	private long shakeTime = 0;
+
+	private void shake() {
+		if (powerTbt.isChecked()) {
+			Log.w("shake", "您已经打开了手电筒");
+			powerTbt.toggle();
+		} else {
+			Log.w("shake", "您已经关闭了手电筒");
+			powerTbt.toggle();
+		}
 	}
 
 	@Override
 	protected void onPause() {
-		// TODO Auto-generated method stub
 		super.onPause();
-		sManager.unregisterListener(this);
+		if (!on) {
+			Log.w("", "pause unreg");
+			sManager.unregisterListener(MainActivity.this);
+		}
 	}
 
 	@Override
 	protected void onResume() {
-		// TODO Auto-generated method stub
 		super.onResume();
-		// sManager.registerListener(this, sLight,
-		// SensorManager.SENSOR_DELAY_NORMAL);
-		// sManager.registerListener(this, sShake,
-		// SensorManager.SENSOR_DELAY_NORMAL);
+		sManager.registerListener(this, sShake, SensorManager.SENSOR_DELAY_UI);
 	}
 
 	@Override
 	protected void onDestroy() {
 		Log.w("Tools", "destory!!");
-		if (isopent) {
+		if (!powerTbt.isChecked()) {
 			camera.stopPreview(); // 关掉亮灯
-			camera.release(); 
+			camera.release();
 		}
+		unregisterReceiver(mBatInfoReceiver);
+		sManager.unregisterListener(this);
 		super.onDestroy();
 
 		// System.exit(0);
