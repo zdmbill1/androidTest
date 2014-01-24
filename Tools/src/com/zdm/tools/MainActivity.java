@@ -23,8 +23,7 @@ import com.zdm.tools.intent.CloseFlashlightIS;
 
 /**
  * @author zdm mail to :zdmbill@163.com 依次start多个service不是阻塞式
- * test
- *         android:keepScreenOn="true"保持屏幕常亮
+ * android:keepScreenOn="true"保持屏幕常亮
  * 
  */
 public class MainActivity extends Activity implements SensorEventListener {

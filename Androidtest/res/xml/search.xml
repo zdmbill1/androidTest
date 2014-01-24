@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<searchable xmlns:android="http://schemas.android.com/apk/res/android" 
+    android:label="@string/action_search"
+    android:hint="@string/action_search"
+    android:icon="@android:drawable/ic_search_category_default"
+    android:searchMode="showSearchIconAsBadge"
+    android:voiceSearchMode="showVoiceSearchButton"
+    android:searchSuggestSelection=" ? "
+    android:searchSuggestAuthority="SuggestionProvider" >
+    <!--这里的值必须SearchSuggestionSampleProvider.AUTHORITY相同，后面讲  -->
+        
+    
+    
+
+</searchable>

@@ -62,6 +62,8 @@ public class DisplayActivity extends Activity {
 //		((TextView)findViewById(R.id.fullscreen_content)).setText(msg);
 		TextView tv=(TextView)findViewById(R.id.fullscreen_content);
 		tv.setText(msg);
+		intent.putExtra("status", "ok");
+		setResult(RESULT_OK, intent);
 		
 		final View controlsView = findViewById(R.id.fullscreen_content_controls);
 		final View contentView = findViewById(R.id.fullscreen_content);

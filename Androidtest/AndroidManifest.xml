@@ -21,6 +21,9 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <meta-data android:name="android.app.default_searchable"
+                   android:value="com.zdm.androidtest.search.SearchUIActivity" />
+            
         </activity>
         <activity
             android:name="com.zdm.androidtest.DisplayActivity"
@@ -32,6 +35,20 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.zdm.androidtest.MainActivity" />
         </activity>
+        <activity
+            android:name="com.zdm.androidtest.TabsActivity"
+            android:label="@string/title_activity_tabs" >
+        </activity>
+        <activity
+            android:name="com.zdm.androidtest.search.SearchUIActivity"
+            android:label="@string/title_activity_search" >
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH"></action>
+            </intent-filter>
+            <meta-data android:name="android.app.searchable"
+                android:resource="@xml/search"></meta-data>
+        </activity>
+        <provider android:name="com.zdm.androidtest.search.SearchSuggestionSampleProvider" android:authorities="SuggestionProvider"></provider>
     </application>
 
 </manifest>
