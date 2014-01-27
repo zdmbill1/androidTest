@@ -9,8 +9,8 @@ import android.content.SearchRecentSuggestionsProvider;
 public class SearchSuggestionSampleProvider extends
 		SearchRecentSuggestionsProvider {
 
-	final static String AUTHORITY="SuggestionProvider";  
-    final static int MODE=DATABASE_MODE_QUERIES;  
+	public final static String AUTHORITY="SuggestionProvider";  
+    public final static int MODE=DATABASE_MODE_QUERIES;  
       
     public SearchSuggestionSampleProvider(){  
         super();  

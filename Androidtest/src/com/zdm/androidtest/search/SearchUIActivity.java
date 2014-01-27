@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.provider.SearchRecentSuggestions;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.zdm.androidtest.R;
 
@@ -59,6 +60,7 @@ public class SearchUIActivity extends Activity {
     public void onNewIntent(final Intent newIntent) {  
         super.onNewIntent(newIntent);  
         Log.i("search", "SearchQueryResults-->onNewIntent()");  
+        Toast.makeText(this, "newIntent", Toast.LENGTH_SHORT).show();
         // get and process search query here  
         final Intent queryIntent = getIntent();  
         final String queryAction = queryIntent.getAction();  

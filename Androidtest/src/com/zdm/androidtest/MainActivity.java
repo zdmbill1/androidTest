@@ -1,11 +1,13 @@
 package com.zdm.androidtest;
 
-import android.app.ActionBar;
+import com.zdm.androidtest.search.SearchSuggestionSampleProvider;
+
 import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.SearchRecentSuggestions;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -13,22 +15,25 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.SearchView;
+import android.widget.SearchView.OnQueryTextListener;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.TextView;
 import android.widget.Toast;
-
-import com.zdm.androidtest.R.menu;
 
 public class MainActivity extends Activity {
 
 	EditText et;
 	String etText;
+	TextView showTv;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		Log.w("MainActivity", "onCreate");
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		ActionBar actionBar = getActionBar();
-		actionBar.hide();
+//		ActionBar actionBar = getActionBar();
+//		actionBar.hide();
 
 		// Button btn_send = (Button) findViewById(R.id.button1);
 		// 直接调用destroy
@@ -42,6 +47,50 @@ public class MainActivity extends Activity {
 		 * 
 		 * } });
 		 */
+		
+		SeekBar sk=(SeekBar) findViewById(R.id.sk);
+		sk.setMax(200);
+		showTv=(TextView) findViewById(R.id.showTv);
+		
+		sk.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+			
+			@Override
+			public void onStopTrackingTouch(SeekBar arg0) {
+				showTv.setText("完成拖动");
+				
+			}
+			
+			@Override
+			public void onStartTrackingTouch(SeekBar arg0) {
+				showTv.setText("开始拖动");
+				
+			}
+			
+			@Override
+			public void onProgressChanged(SeekBar arg0, int arg1, boolean arg2) {
+				showTv.setText("拖动ing:"+arg1);
+				
+			}
+		});
+		
+		SearchView sv1=(SearchView) findViewById(R.id.searchView1);
+		SearchManager searchManager = (SearchManager)
+				 getSystemService(Context.SEARCH_SERVICE);
+		sv1.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+		sv1.setOnQueryTextListener(new OnQueryTextListener() {
+			
+			@Override
+			public boolean onQueryTextSubmit(String arg0) {
+				Toast.makeText(getApplicationContext(), arg0, Toast.LENGTH_SHORT).show();				
+				return false;
+			}
+			
+			@Override
+			public boolean onQueryTextChange(String arg0) {
+				// TODO Auto-generated method stub
+				return false;
+			}
+		});
 	}
 
 	@Override
