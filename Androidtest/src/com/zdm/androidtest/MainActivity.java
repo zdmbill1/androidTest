@@ -32,6 +32,7 @@ public class MainActivity extends Activity {
 		Log.w("MainActivity", "onCreate");
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		//add something on web
 //		ActionBar actionBar = getActionBar();
 //		actionBar.hide();
 
