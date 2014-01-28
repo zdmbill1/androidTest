@@ -1,13 +1,10 @@
 package com.zdm.androidtest;
 
-import com.zdm.androidtest.search.SearchSuggestionSampleProvider;
-
 import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.SearchRecentSuggestions;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -32,6 +29,8 @@ public class MainActivity extends Activity {
 		Log.w("MainActivity", "onCreate");
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		//add on local for test merge
+		System.out.println("+++++++++++++++++");
 //		ActionBar actionBar = getActionBar();
 //		actionBar.hide();
 
