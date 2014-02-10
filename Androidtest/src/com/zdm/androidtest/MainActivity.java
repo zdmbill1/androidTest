@@ -1,8 +1,11 @@
 package com.zdm.androidtest;
 
 import android.app.Activity;
+import android.app.AlertDialog.Builder;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -29,6 +32,46 @@ public class MainActivity extends Activity {
 		Log.w("MainActivity", "onCreate");
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+		Builder ab=new Builder(this);
+
+		ab.setPositiveButton("Yes", new OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				Toast.makeText(getApplicationContext(), "click yes", Toast.LENGTH_SHORT).show();
+				
+			}
+		});
+		
+		ab.setNegativeButton("No", new OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				Toast.makeText(getApplicationContext(), "click no", Toast.LENGTH_SHORT).show();
+				
+			}
+		});
+		//点击对话框以外地方不取消对话框，默认是true
+		ab.setCancelable(false);
+		
+		//setItems和setMssage一个生效
+		ab.setItems(new String[]{"list1","list2","list3"}, new OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				Toast.makeText(getApplicationContext(), which+" was clicked", Toast.LENGTH_SHORT).show();
+				
+			}
+		});
+//		ab.setMessage("alertDialog test");
+		//如果需要都显示就只有使用setView了,新建一个layout布局文件，然后
+		//LayoutInflater inf=LayoutInflater.from(this);
+		//View layout=inf.inflate();
+		//ab.setView(layout);
+		
+		ab.setTitle("zdmtitle");
+		ab.show();
 
 		//add on local for test merge
 		System.out.println("+++++++++++++++++");
