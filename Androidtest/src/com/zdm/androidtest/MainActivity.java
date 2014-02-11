@@ -1,6 +1,7 @@
 package com.zdm.androidtest;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.SearchManager;
 import android.content.Context;
@@ -27,6 +28,7 @@ public class MainActivity extends Activity {
 	EditText et;
 	String etText;
 	TextView showTv;
+	AlertDialog adialog;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +74,9 @@ public class MainActivity extends Activity {
 		//ab.setView(layout);
 		
 		ab.setTitle("zdmtitle");
-		ab.show();
+		//必须在onPause调用dimiss方法，不然有
+		//Activity has leaked window that was originally added错误
+		adialog=ab.show();
 
 		//add on local for test merge
 		System.out.println("+++++++++++++++++");
@@ -245,6 +249,7 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onPause() {
 		Log.w("MainActivity", "onPause");
+		adialog.dismiss();
 		super.onPause();
 	}
 

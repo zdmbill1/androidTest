@@ -13,8 +13,10 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+        <!-- target13后必须android:configChanges="orientation|screenSize"才会执行onConfigurationChanged -->
         <activity
             android:name="com.zdm.androidtest.MainActivity"
+            android:configChanges="orientation|screenSize"
             android:launchMode="singleTask"
             android:label="@string/app_name" >
             <intent-filter>
