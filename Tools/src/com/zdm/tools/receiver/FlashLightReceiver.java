@@ -29,7 +29,7 @@ public class FlashLightReceiver extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		Log.i("broad", "receive");
+		Log.w("broad", "receive");
 		final String action = intent.getAction();
 
 		if (Intent.ACTION_SCREEN_ON.equals(action)) {

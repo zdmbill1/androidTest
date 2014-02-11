@@ -33,11 +33,11 @@
         </service>
 
         <receiver android:name="com.zdm.tools.receiver.FlashLightReceiver" >
-            <intent-filter>
+           <!--  <intent-filter>
                 <action android:name="android.intent.action.SCREEN_ON"/>
                 <action android:name="android.intent.action.SCREEN_OFF"/>
                 <action android:name="android.intent.action.USER_PRESENT"/>
-            </intent-filter>
+            </intent-filter> -->
         </receiver>
 
         <activity

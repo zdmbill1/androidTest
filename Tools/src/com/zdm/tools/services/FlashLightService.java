@@ -5,11 +5,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.hardware.Camera;
+import android.hardware.Camera.Parameters;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.hardware.Camera.Parameters;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -22,13 +22,16 @@ public class FlashLightService extends Service implements SensorEventListener {
 		throw new UnsupportedOperationException("Not yet implemented");
 	}
 
+	private SensorManager sManager;
+	private Sensor sShake;
+	
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		Log.i("flSer", "create FlashLightService");
+		Log.w("flSer", "create FlashLightService");
 
-		SensorManager sManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-		Sensor sShake = sManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+		sManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+		sShake = sManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		boolean on = false;
 		sManager.registerListener(this, sShake, SensorManager.SENSOR_DELAY_UI);
 			
@@ -41,7 +44,7 @@ public class FlashLightService extends Service implements SensorEventListener {
 		registerReceiver(flReceiver, filter);
 
 	}
-
+	
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 		Log.e("flSer", "not implemmented");
@@ -94,6 +97,6 @@ public class FlashLightService extends Service implements SensorEventListener {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		Log.i("flSer", "destroy FlashLightService");
+		Log.w("flSer", "destroy FlashLightService");
 	}
 }

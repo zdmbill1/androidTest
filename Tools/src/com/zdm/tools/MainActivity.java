@@ -22,9 +22,8 @@ import android.widget.ToggleButton;
 import com.zdm.tools.intent.CloseFlashlightIS;
 
 /**
- * @author zdm mail to :zdmbill@163.com 
- * 依次start多个service不是阻塞式
- * android:keepScreenOn="true"保持屏幕常亮
+ * @author zdm mail to :zdmbill@163.com 依次start多个service不是阻塞式
+ *         android:keepScreenOn="true"保持屏幕常亮
  * 
  */
 public class MainActivity extends Activity implements SensorEventListener {
@@ -44,12 +43,12 @@ public class MainActivity extends Activity implements SensorEventListener {
 		sManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
 		sShake = sManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-		
+
 		if (sShake == null) {
-			//不支持shake
-		} 
-		
-onLowMemory();
+			// 不支持shake
+		}
+
+//		onLowMemory();
 		powerTbt = (ToggleButton) findViewById(R.id.toggleButton1);
 
 		powerTbt.setOnCheckedChangeListener(new OnCheckedChangeListener() {
