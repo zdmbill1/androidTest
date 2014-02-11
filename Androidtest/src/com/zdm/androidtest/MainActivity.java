@@ -6,6 +6,7 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.res.Configuration;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -272,4 +273,14 @@ public class MainActivity extends Activity {
 		android.os.Debug.stopMethodTracing();
 	}
 
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		// TODO Auto-generated method stub
+		super.onConfigurationChanged(newConfig);
+		if(newConfig.orientation==Configuration.ORIENTATION_LANDSCAPE){
+			Toast.makeText(getApplicationContext(), "横屏", Toast.LENGTH_SHORT).show();
+		}else if(newConfig.orientation==Configuration.ORIENTATION_PORTRAIT){
+			Toast.makeText(getApplicationContext(), "竖屏", Toast.LENGTH_SHORT).show();
+		}
+	}
 }
