@@ -22,7 +22,8 @@ import android.widget.ToggleButton;
 import com.zdm.tools.intent.CloseFlashlightIS;
 
 /**
- * @author zdm mail to :zdmbill@163.com 依次start多个service不是阻塞式
+ * @author zdm mail to :zdmbill@163.com 
+ * 依次start多个service不是阻塞式
  * android:keepScreenOn="true"保持屏幕常亮
  * 
  */

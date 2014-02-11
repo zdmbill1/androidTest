@@ -18,17 +18,37 @@
         <activity
             android:name="com.zdm.tools.MainActivity"
             android:label="@string/app_name" >
+            <!-- <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter> -->
+        </activity>
+
+        <service
+            android:name="com.zdm.tools.intent.CloseFlashlightIS"
+            android:exported="false" >
+        </service>
+        <service android:name="com.zdm.tools.services.FlashLightService" >
+        </service>
+
+        <receiver android:name="com.zdm.tools.receiver.FlashLightReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.SCREEN_ON"/>
+                <action android:name="android.intent.action.SCREEN_OFF"/>
+                <action android:name="android.intent.action.USER_PRESENT"/>
+            </intent-filter>
+        </receiver>
+
+        <activity
+            android:name="com.zdm.tools.FlashLightActivity"
+            android:label="@string/title_activity_flash_light" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
-        <service
-            android:name="com.zdm.tools.intent.CloseFlashlightIS"
-            android:exported="false" >
-        </service>
     </application>
 
 </manifest>
