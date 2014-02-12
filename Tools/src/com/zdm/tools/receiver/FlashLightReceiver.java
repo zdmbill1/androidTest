@@ -24,11 +24,13 @@ public class FlashLightReceiver extends BroadcastReceiver {
 		flsl.setmContext(context);
 		final String action = intent.getAction();
 
+		Log.w("broad", action + " is ordered " + isOrderedBroadcast());
+
 		if (Intent.ACTION_SCREEN_ON.equals(action)) {
 			Log.w("broad", "screen is on...");
-			
+
 			flsl.regFLListener();
-//			Toast.makeText(context, "手电筒正常工作", Toast.LENGTH_LONG).show();
+			// Toast.makeText(context, "手电筒正常工作", Toast.LENGTH_LONG).show();
 
 		} else if (Intent.ACTION_SCREEN_OFF.equals(action)) {
 			Log.w("broad", "screen is off...");

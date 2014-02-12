@@ -14,7 +14,7 @@ import com.zdm.tools.receiver.FlashLightReceiver;
 import com.zdm.tools.sensor.listener.FlashLightSensorListener;
 import com.zdm.tools.services.FlashLightService;
 
-//TODO 需要解决turn_on广播收到不及时的问题
+//TODO 需要解决turn_on广播收到不及时的问题，off的时候不unreg也没影响？
 //TODO 考虑来电，闹钟特殊情况
 //TODO 增加各种设置以及保存
 public class MainActivity extends Activity {

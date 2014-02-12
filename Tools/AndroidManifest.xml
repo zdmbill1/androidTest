@@ -35,16 +35,16 @@
         <service android:name="com.zdm.tools.services.FlashLightService" >
         </service>
 
-        <receiver android:name="com.zdm.tools.receiver.FlashLightReceiver" >
+       <!--  <receiver android:name="com.zdm.tools.receiver.FlashLightReceiver" >
 
-            <!--
+            
             <intent-filter>
                 <action android:name="android.intent.action.SCREEN_ON"/>
                 <action android:name="android.intent.action.SCREEN_OFF"/>
                 <action android:name="android.intent.action.USER_PRESENT"/>
             </intent-filter>
-            -->
-        </receiver>
+           
+        </receiver> -->
 
         <activity
             android:configChanges="orientation|screenSize"
