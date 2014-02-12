@@ -4,99 +4,75 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.hardware.Camera;
-import android.hardware.Camera.Parameters;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.os.IBinder;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.util.Log;
 
 import com.zdm.tools.receiver.FlashLightReceiver;
+import com.zdm.tools.sensor.listener.FlashLightSensorListener;
 
-public class FlashLightService extends Service implements SensorEventListener {
+/**
+ * @author bill 申请电源锁后锁屏继续工作
+ * 
+ */
+public class FlashLightService extends Service {
+
+	private FlashLightSensorListener flsl = FlashLightSensorListener
+			.getInstance();
+
+	private FlashLightReceiver flReceiver;
+
+	private WakeLock mWakeLock;
+
+	// 申请设备电源锁
+	private void acquireWakeLock() {
+		if (null == mWakeLock) {
+			PowerManager pm = (PowerManager) this
+					.getSystemService(Context.POWER_SERVICE);
+			mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK
+					| PowerManager.ON_AFTER_RELEASE, "");
+			if (null != mWakeLock) {
+				mWakeLock.acquire();
+			}
+		}
+	}
+
+	// 释放设备电源锁
+	private void releaseWakeLock() {
+		if (null != mWakeLock) {
+			mWakeLock.release();
+			mWakeLock = null;
+		}
+	}
 
 	@Override
 	public IBinder onBind(Intent intent) {
 		throw new UnsupportedOperationException("Not yet implemented");
 	}
 
-	private SensorManager sManager;
-	private Sensor sShake;
-	
 	@Override
 	public void onCreate() {
 		super.onCreate();
 		Log.w("flSer", "create FlashLightService");
 
-		sManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-		sShake = sManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-		boolean on = false;
-		sManager.registerListener(this, sShake, SensorManager.SENSOR_DELAY_UI);
-			
+		flsl.setmContext(this);
+		// flsl.regFLListener();
+
 		IntentFilter filter = new IntentFilter();
-		FlashLightReceiver flReceiver = new FlashLightReceiver(sManager, sShake,
-				on, this);
+		flReceiver = new FlashLightReceiver();
 		filter.addAction(Intent.ACTION_SCREEN_OFF);
 		filter.addAction(Intent.ACTION_SCREEN_ON);
 		filter.addAction(Intent.ACTION_USER_PRESENT);
 		registerReceiver(flReceiver, filter);
 
 	}
-	
-	@Override
-	public void onAccuracyChanged(Sensor sensor, int accuracy) {
-		Log.e("flSer", "not implemmented");
-	}
 
-	private float oldSuma = 0;
-	private long lastTime = 0;
-	private long shakeTime = 0;
-	private boolean on=false;
-	
-	@Override
-	public void onSensorChanged(SensorEvent event) {
-		// TODO 摇晃程度判断&摇晃程度设定
-
-		long currectTime = System.currentTimeMillis();
-
-		if (currectTime - lastTime > 100) {
-			float suma = event.values[0] + event.values[1] + event.values[2];
-			long diffTime = currectTime - lastTime;
-			float speed = Math.abs(suma - oldSuma) * 1000 / diffTime;
-			// Log.w("sensor", "speed=" + speed + " sum=" + suma);
-			lastTime = currectTime;
-			oldSuma = suma;
-			// 建议speed在20以上，越小越灵敏
-			if (speed > 100 && (currectTime - shakeTime) > 1500) {
-				shake();
-				shakeTime = currectTime;
-			}
-		}
-	}
-	
-	private Camera camera;
-	
-	private void shake() {
-		on=!on;
-		if (on) {
-			Log.w("flSer", "打开手电筒");
-			camera = Camera.open();
-			Parameters params = camera.getParameters();
-			params.setFlashMode(Parameters.FLASH_MODE_TORCH);
-			camera.setParameters(params);
-			camera.startPreview(); // 开始亮灯
-		} else {
-			Log.w("flSer", "关闭手电筒");
-			camera.stopPreview(); // 关掉亮灯
-			camera.release(); // 关掉照相机
-		}
-	}
-	
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		unregisterReceiver(flReceiver);
+		flsl.setmContext(null);
 		Log.w("flSer", "destroy FlashLightService");
 	}
 }

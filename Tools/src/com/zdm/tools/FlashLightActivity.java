@@ -1,32 +1,46 @@
 package com.zdm.tools;
 
 import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Intent;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 
+import com.zdm.tools.receiver.FlashLightReceiver;
+import com.zdm.tools.sensor.listener.FlashLightSensorListener;
 import com.zdm.tools.services.FlashLightService;
 
 public class FlashLightActivity extends Activity {
 
-	private FlashLightService flSer;
 	private Intent flIntent;
-	private SensorManager sManager;
-	private boolean on=false;
-	private Sensor sShake;
-	
+
+	private FlashLightSensorListener flsl = FlashLightSensorListener
+			.getInstance();
+	private FlashLightReceiver flReceiver;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_flash_light);
-		flIntent=new Intent(this, FlashLightService.class);
-		
-		ComponentName c=startService(flIntent);
+		if (null != flsl.getmContext()) {
+			Log.w("flAct", flsl.getmContext().getClass().getName());
+			if (flsl.getmContext().getClass().getName()
+					.equals("com.zdm.tools.services.FlashLightService")) {
+				((FlashLightService) flsl.getmContext()).stopSelf();
+			}
+		}
+
+		flsl.setmContext(this);
+		flsl.regFLListener();
+		flIntent = new Intent(this, FlashLightService.class);
+
+		IntentFilter filter = new IntentFilter();
+		flReceiver = new FlashLightReceiver();
+		filter.addAction(Intent.ACTION_SCREEN_OFF);
+		filter.addAction(Intent.ACTION_SCREEN_ON);
+		filter.addAction(Intent.ACTION_USER_PRESENT);
+		registerReceiver(flReceiver, filter);
 	}
 
 	@Override
@@ -36,41 +50,43 @@ public class FlashLightActivity extends Activity {
 		return true;
 	}
 
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			Log.w("flAct", "press back");
-			if (!on) {
-				sManager.unregisterListener(flSer);
-			}
-			moveTaskToBack(true);
-			return true;
-		}
-		return super.onKeyDown(keyCode, event);
-	}
-	
+	// @Override
+	/*
+	 * public boolean onKeyDown(int keyCode, KeyEvent event) { if (keyCode ==
+	 * KeyEvent.KEYCODE_BACK) { Log.w("flAct", "press back"); if (!on) {
+	 * flsl.unRegFLListener(); } // moveTaskToBack(true); // return true; }
+	 * return super.onKeyDown(keyCode, event); }
+	 */
+
 	@Override
 	protected void onPause() {
 		super.onPause();
-		if (!on) {
-			Log.w("flAct", "pause unreg");
-			sManager.unregisterListener(flSer);
-		}
+		Log.w("flAct", "pause unreg");
+		flsl.unRegFLListenerOnly();
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		sManager.registerListener(flSer, sShake, SensorManager.SENSOR_DELAY_UI);
+		Log.w("flAct", "resume reg");
+		flsl.regFLListener();
 	}
 
 	@Override
 	protected void onDestroy() {
 		Log.w("flAct", "destory!!");
-		stopService(flIntent);
-		sManager.unregisterListener(flSer);
+		startService(flIntent);
+		flsl.unRegFLListener();
+		unregisterReceiver(flReceiver);
 		super.onDestroy();
 
 		// System.exit(0);
 	}
+
+	// 配置android:configChanges="orientation|screenSize"后无特殊目的可以不用重写onConfigurationChanged方法
+	/*
+	 * @Override public void onConfigurationChanged(Configuration newConfig) {
+	 * Log.w("flAct", "ConfigurationChanged");
+	 * super.onConfigurationChanged(newConfig); }
+	 */
 }
