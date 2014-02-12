@@ -48,6 +48,8 @@ public class MainActivity extends Activity {
 		filter.addAction(Intent.ACTION_SCREEN_OFF);
 		filter.addAction(Intent.ACTION_SCREEN_ON);
 		filter.addAction(Intent.ACTION_USER_PRESENT);
+		Log.w("flAct", "filter Priority="+filter.getPriority());
+		filter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
 		registerReceiver(flReceiver, filter);
 
 		powerTbt = (ToggleButton) findViewById(R.id.toggleButton1);

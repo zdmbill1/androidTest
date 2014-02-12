@@ -64,6 +64,7 @@ public class FlashLightService extends Service {
 		filter.addAction(Intent.ACTION_SCREEN_OFF);
 		filter.addAction(Intent.ACTION_SCREEN_ON);
 		filter.addAction(Intent.ACTION_USER_PRESENT);
+		filter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
 		registerReceiver(flReceiver, filter);
 
 	}
