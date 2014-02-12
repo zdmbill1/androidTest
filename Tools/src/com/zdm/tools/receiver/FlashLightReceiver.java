@@ -9,16 +9,10 @@ import com.zdm.tools.sensor.listener.FlashLightSensorListener;
 import com.zdm.tools.services.FlashLightService;
 
 public class FlashLightReceiver extends BroadcastReceiver {
-	private FlashLightService flS;
-
 	private FlashLightSensorListener flsl = FlashLightSensorListener
 			.getInstance();
 
 	public FlashLightReceiver() {
-	}
-
-	public FlashLightReceiver(FlashLightService flS) {
-		this.flS = flS;
 	}
 
 	/*
@@ -32,8 +26,9 @@ public class FlashLightReceiver extends BroadcastReceiver {
 
 		if (Intent.ACTION_SCREEN_ON.equals(action)) {
 			Log.w("broad", "screen is on...");
-
+			
 			flsl.regFLListener();
+//			Toast.makeText(context, "手电筒正常工作", Toast.LENGTH_LONG).show();
 
 		} else if (Intent.ACTION_SCREEN_OFF.equals(action)) {
 			Log.w("broad", "screen is off...");
@@ -44,7 +39,7 @@ public class FlashLightReceiver extends BroadcastReceiver {
 		} else if (Intent.ACTION_USER_PRESENT.equals(action)) {
 			Log.w("broad", "ACTION_USER_PRESENT");
 			if (context.getClass().getName()
-					.equals("com.zdm.tools.services.FlashLightService")) {
+					.equals(FlashLightService.class.getName())) {
 				flsl.unRegFLListener();
 			}
 		}

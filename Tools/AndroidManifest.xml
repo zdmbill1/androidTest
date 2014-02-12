@@ -16,7 +16,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.zdm.tools.MainActivity"            
+            android:name="com.zdm.tools.TestMainActivity"            
             android:label="@string/app_name" >
 
             <!--
@@ -48,8 +48,8 @@
 
         <activity
             android:configChanges="orientation|screenSize"
-            android:name="com.zdm.tools.FlashLightActivity"
-            android:label="@string/title_activity_flash_light" >
+            android:name="com.zdm.tools.MainActivity"
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -1,37 +1,29 @@
 package com.zdm.tools;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.hardware.Camera;
-import android.hardware.Camera.Parameters;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.WindowManager;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.view.Menu;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.ToggleButton;
 
-import com.zdm.tools.intent.CloseFlashlightIS;
+import com.zdm.tools.receiver.FlashLightReceiver;
+import com.zdm.tools.sensor.listener.FlashLightSensorListener;
+import com.zdm.tools.services.FlashLightService;
 
-/**
- * @author zdm mail to :zdmbill@163.com ÒÀ´Îstart¶à¸öservice²»ÊÇ×èÈûÊ½
- *         android:keepScreenOn="true"±£³ÖÆÁÄ»³£ÁÁ
- * 
- */
-public class MainActivity extends Activity implements SensorEventListener {
-	private SensorManager sManager;
-	private Sensor sShake;
+//TODO éœ€è¦è§£å†³turn_onå¹¿æ’­æ”¶åˆ°ä¸åŠæ—¶çš„é—®é¢˜
+//TODO è€ƒè™‘æ¥ç”µï¼Œé—¹é’Ÿç‰¹æ®Šæƒ…å†µ
+//TODO å¢åŠ å„ç§è®¾ç½®ä»¥åŠä¿å­˜
+public class MainActivity extends Activity {
 
-	// private boolean isopent = false;
-	private Camera camera;
+	private Intent flIntent;
+
+	private FlashLightSensorListener flsl = FlashLightSensorListener
+			.getInstance();
+	private FlashLightReceiver flReceiver;
 
 	private ToggleButton powerTbt;
 
@@ -39,178 +31,91 @@ public class MainActivity extends Activity implements SensorEventListener {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
-		sManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-
-		sShake = sManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-
-		if (sShake == null) {
-			// ²»Ö§³Öshake
+		if (null != flsl.getmContext()) {
+			Log.w("flAct", flsl.getmContext().getClass().getName());
+			if (flsl.getmContext().getClass().getName()
+					.equals(FlashLightService.class.getName())) {
+				((FlashLightService) flsl.getmContext()).stopSelf();
+			}
 		}
 
-//		onLowMemory();
-		powerTbt = (ToggleButton) findViewById(R.id.toggleButton1);
+		flsl.setmContext(this);
+		flsl.regFLListener();
+		flIntent = new Intent(this, FlashLightService.class);
 
-		powerTbt.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-
-			@Override
-			public void onCheckedChanged(CompoundButton arg0, boolean isChecked) {
-				if (isChecked) {
-					Log.w("switch", "ÄúÒÑ¾­´ò¿ªÁËÊÖµçÍ²");
-					camera = Camera.open();
-					Parameters params = camera.getParameters();
-					params.setFlashMode(Parameters.FLASH_MODE_TORCH);
-					camera.setParameters(params);
-					camera.startPreview(); // ¿ªÊ¼ÁÁµÆ
-				} else {
-					Log.w("switch", "ÄúÒÑ¾­¹Ø±ÕÁËÊÖµçÍ²");
-					camera.stopPreview(); // ¹ØµôÁÁµÆ
-					camera.release(); // ¹ØµôÕÕÏà»ú
-				}
-
-			}
-		});
-
-		// powerBt.setOnClickListener(new OnClickListener() {
-		//
-		// @Override
-		// public void onClick(View arg0) {
-		// shake();
-		// }
-		// });
-
-		// ÔÚ½âËøÇ°ÔËĞĞ
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
-		// moveTaskToBack(true);
-
-		final IntentFilter filter = new IntentFilter();
+		IntentFilter filter = new IntentFilter();
+		flReceiver = new FlashLightReceiver();
 		filter.addAction(Intent.ACTION_SCREEN_OFF);
 		filter.addAction(Intent.ACTION_SCREEN_ON);
 		filter.addAction(Intent.ACTION_USER_PRESENT);
-		registerReceiver(mBatInfoReceiver, filter);
+		registerReceiver(flReceiver, filter);
 
-		CloseIntent = new Intent(this, CloseFlashlightIS.class);
+		powerTbt = (ToggleButton) findViewById(R.id.toggleButton1);
+		//ç‚¹å‡»æŒ‰é’®å“åº”click,checkçŠ¶æ€æ”¹å˜ä¸å“åº”
+		powerTbt.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				flsl.shake();
+				
+			}
+		});
+
+//		powerTbt.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+//
+//			@Override
+//			public void onCheckedChanged(CompoundButton arg0, boolean isChecked) {
+//				
+//			}
+//		});
+		
+		
 	}
 
-	private Intent CloseIntent;
-
-	private boolean on = false;
-	private final BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver() {
-		@Override
-		public void onReceive(final Context context, final Intent intent) {
-			final String action = intent.getAction();
-			if (Intent.ACTION_SCREEN_ON.equals(action)) {
-
-				Log.w("broad", "screen is on...");
-				sManager.registerListener(MainActivity.this, sShake,
-						SensorManager.SENSOR_DELAY_UI);
-				on = true;
-			} else if (Intent.ACTION_SCREEN_OFF.equals(action)) {
-				Log.w("broad", "screen is off...");
-				on = false;
-				sManager.unregisterListener(MainActivity.this);
-
-				startService(CloseIntent);
-			} else if (Intent.ACTION_USER_PRESENT.equals(action)) {
-				Log.w("broad", "ACTION_USER_PRESENT");
-				on = false;
-				sManager.unregisterListener(MainActivity.this);
-			}
-		}
-	};
-
-	// TODO ÆÁÄ»¸÷ÖÖÑÕÉ«Éè¶¨
-	// TODO ¿ª¹ØÊ±¼äÉè¶¨
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main, menu);
+		return true;
+	}
 
 	// @Override
-	// public boolean onCreateOptionsMenu(Menu menu) {
-	// // Inflate the menu; this adds items to the action bar if it is present.
-	// getMenuInflater().inflate(R.menu.main, menu);
-	// return true;
-	// }
-
-	@Override
-	public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-	}
-
-	float[] gravity = new float[3], linear_acceleration = new float[3];
-
-	@Override
-	public void onSensorChanged(SensorEvent event) {
-		// TODO Ò¡»Î³Ì¶ÈÅĞ¶Ï&Ò¡»Î³Ì¶ÈÉè¶¨
-
-		long currectTime = System.currentTimeMillis();
-
-		if (currectTime - lastTime > 100) {
-			float suma = event.values[0] + event.values[1] + event.values[2];
-			long diffTime = currectTime - lastTime;
-			float speed = Math.abs(suma - oldSuma) * 1000 / diffTime;
-			// Log.w("sensor", "speed=" + speed + " sum=" + suma);
-			lastTime = currectTime;
-			oldSuma = suma;
-			// ½¨ÒéspeedÔÚ20ÒÔÉÏ£¬Ô½Ğ¡Ô½ÁéÃô
-			if (speed > 100 && (currectTime - shakeTime) > 1500) {
-				shake();
-				shakeTime = currectTime;
-			}
-		}
-	}
-
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			Log.w("key", "press back");
-			if (!on) {
-				sManager.unregisterListener(MainActivity.this);
-			}
-			moveTaskToBack(true);
-			return true;
-		}
-		return super.onKeyDown(keyCode, event);
-	}
-
-	private float oldSuma = 0;
-	private long lastTime = 0;
-	private long shakeTime = 0;
-
-	private void shake() {
-		if (powerTbt.isChecked()) {
-			Log.w("shake", "ÄúÒÑ¾­´ò¿ªÁËÊÖµçÍ²");
-			powerTbt.toggle();
-		} else {
-			Log.w("shake", "ÄúÒÑ¾­¹Ø±ÕÁËÊÖµçÍ²");
-			powerTbt.toggle();
-		}
-	}
+	/*
+	 * public boolean onKeyDown(int keyCode, KeyEvent event) { if (keyCode ==
+	 * KeyEvent.KEYCODE_BACK) { Log.w("flAct", "press back"); if (!on) {
+	 * flsl.unRegFLListener(); } // moveTaskToBack(true); // return true; }
+	 * return super.onKeyDown(keyCode, event); }
+	 */
 
 	@Override
 	protected void onPause() {
 		super.onPause();
-		if (!on) {
-			Log.w("", "pause unreg");
-			sManager.unregisterListener(MainActivity.this);
-		}
+		Log.w("flAct", "pause unreg");
+		flsl.unRegFLListenerOnly();
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		sManager.registerListener(this, sShake, SensorManager.SENSOR_DELAY_UI);
+		Log.w("flAct", "resume reg");
+		flsl.regFLListener();
 	}
 
 	@Override
 	protected void onDestroy() {
-		Log.w("Tools", "destory!!");
-		if (!powerTbt.isChecked()) {
-			camera.stopPreview(); // ¹ØµôÁÁµÆ
-			camera.release();
-		}
-		unregisterReceiver(mBatInfoReceiver);
-		sManager.unregisterListener(this);
+		Log.w("flAct", "destory!!");
+		startService(flIntent);
+		flsl.unRegFLListener();
+		unregisterReceiver(flReceiver);
 		super.onDestroy();
 
 		// System.exit(0);
 	}
 
+	// é…ç½®android:configChanges="orientation|screenSize"åæ— ç‰¹æ®Šç›®çš„å¯ä»¥ä¸ç”¨é‡å†™onConfigurationChangedæ–¹æ³•
+	/*
+	 * @Override public void onConfigurationChanged(Configuration newConfig) {
+	 * Log.w("flAct", "ConfigurationChanged");
+	 * super.onConfigurationChanged(newConfig); }
+	 */
 }

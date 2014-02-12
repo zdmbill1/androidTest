@@ -1,5 +1,6 @@
 package com.zdm.tools.sensor.listener;
 
+import android.app.Activity;
 import android.content.Context;
 import android.hardware.Camera;
 import android.hardware.Camera.Parameters;
@@ -8,6 +9,10 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
+import android.widget.ToggleButton;
+
+import com.zdm.tools.MainActivity;
+import com.zdm.tools.R;
 
 public class FlashLightSensorListener implements SensorEventListener {
 
@@ -57,7 +62,7 @@ public class FlashLightSensorListener implements SensorEventListener {
 		}
 	}
 
-	private void shake() {
+	public void shake() {
 		on = !on;
 		if (on) {
 			Log.w("flSListener", "打开手电筒");
@@ -70,6 +75,14 @@ public class FlashLightSensorListener implements SensorEventListener {
 			Log.w("flSListener", "关闭手电筒");
 			camera.stopPreview(); // 关掉亮灯
 			camera.release(); // 关掉照相机
+		}
+
+		if (null != mContext
+				&& mContext.getClass().getName()
+						.equals(MainActivity.class.getName())) {
+			Activity a = (Activity) mContext;
+			ToggleButton tb = (ToggleButton) a.findViewById(R.id.toggleButton1);
+			tb.setChecked(on);
 		}
 	}
 
@@ -86,11 +99,11 @@ public class FlashLightSensorListener implements SensorEventListener {
 		}
 		sManager.unregisterListener(this);
 	}
-	
+
 	/**
 	 * 例如当灯打开，屏幕关闭时
 	 */
-	public void unRegFLListenerOnly(){
+	public void unRegFLListenerOnly() {
 		sManager.unregisterListener(this);
 	}
 
@@ -100,9 +113,11 @@ public class FlashLightSensorListener implements SensorEventListener {
 
 	public void setmContext(Context mContext) {
 		this.mContext = mContext;
-		sManager = (SensorManager) mContext
-				.getSystemService(Context.SENSOR_SERVICE);
-		sShake = sManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+		if (mContext != null) {
+			sManager = (SensorManager) mContext
+					.getSystemService(Context.SENSOR_SERVICE);
+			sShake = sManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+		}
 	}
 
 	public boolean isOn() {
