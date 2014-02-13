@@ -54,7 +54,7 @@ public class FlashLightService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		Log.w("flSer", "create FlashLightService");
+		Log.w("fl-flSer", "create FlashLightService");
 
 		flsl.setmContext(this);
 		// flsl.regFLListener();
@@ -74,6 +74,6 @@ public class FlashLightService extends Service {
 		super.onDestroy();
 		unregisterReceiver(flReceiver);
 		flsl.setmContext(null);
-		Log.w("flSer", "destroy FlashLightService");
+		Log.w("fl-flSer", "destroy FlashLightService");
 	}
 }

@@ -32,7 +32,7 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		if (null != flsl.getmContext()) {
-			Log.w("flAct", flsl.getmContext().getClass().getName());
+			Log.w("fl-flAct", flsl.getmContext().getClass().getName());
 			if (flsl.getmContext().getClass().getName()
 					.equals(FlashLightService.class.getName())) {
 				((FlashLightService) flsl.getmContext()).stopSelf();
@@ -48,7 +48,7 @@ public class MainActivity extends Activity {
 		filter.addAction(Intent.ACTION_SCREEN_OFF);
 		filter.addAction(Intent.ACTION_SCREEN_ON);
 		filter.addAction(Intent.ACTION_USER_PRESENT);
-		Log.w("flAct", "filter Priority="+filter.getPriority());
+		Log.w("fl-flAct", "filter Priority="+filter.getPriority());
 		filter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
 		registerReceiver(flReceiver, filter);
 
@@ -84,7 +84,7 @@ public class MainActivity extends Activity {
 	// @Override
 	/*
 	 * public boolean onKeyDown(int keyCode, KeyEvent event) { if (keyCode ==
-	 * KeyEvent.KEYCODE_BACK) { Log.w("flAct", "press back"); if (!on) {
+	 * KeyEvent.KEYCODE_BACK) { Log.w("fl-flAct", "press back"); if (!on) {
 	 * flsl.unRegFLListener(); } // moveTaskToBack(true); // return true; }
 	 * return super.onKeyDown(keyCode, event); }
 	 */
@@ -92,20 +92,20 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onPause() {
 		super.onPause();
-		Log.w("flAct", "pause unreg");
+		Log.w("fl-flAct", "pause unreg");
 		flsl.unRegFLListenerOnly();
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		Log.w("flAct", "resume reg");
+		Log.w("fl-flAct", "resume reg");
 		flsl.regFLListener();
 	}
 
 	@Override
 	protected void onDestroy() {
-		Log.w("flAct", "destory!!");
+		Log.w("fl-flAct", "destory!!");
 		startService(flIntent);
 		flsl.unRegFLListener();
 		unregisterReceiver(flReceiver);
@@ -117,7 +117,7 @@ public class MainActivity extends Activity {
 	// 配置android:configChanges="orientation|screenSize"后无特殊目的可以不用重写onConfigurationChanged方法
 	/*
 	 * @Override public void onConfigurationChanged(Configuration newConfig) {
-	 * Log.w("flAct", "ConfigurationChanged");
+	 * Log.w("fl-flAct", "ConfigurationChanged");
 	 * super.onConfigurationChanged(newConfig); }
 	 */
 }

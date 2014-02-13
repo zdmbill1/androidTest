@@ -51,7 +51,7 @@ public class FlashLightSensorListener implements SensorEventListener {
 			float suma = event.values[0] + event.values[1] + event.values[2];
 			long diffTime = currectTime - lastTime;
 			float speed = Math.abs(suma - oldSuma) * 1000 / diffTime;
-			// Log.w("sensor", "speed=" + speed + " sum=" + suma);
+			// Log.w("fl-sensor", "speed=" + speed + " sum=" + suma);
 			lastTime = currectTime;
 			oldSuma = suma;
 			// 建议speed在20以上，越小越灵敏
@@ -65,14 +65,14 @@ public class FlashLightSensorListener implements SensorEventListener {
 	public void shake() {
 		on = !on;
 		if (on) {
-			Log.w("flSListener", "打开手电筒");
+			Log.w("fl-flSListener", "打开手电筒");
 			camera = Camera.open();
 			Parameters params = camera.getParameters();
 			params.setFlashMode(Parameters.FLASH_MODE_TORCH);
 			camera.setParameters(params);
 			camera.startPreview(); // 开始亮灯
 		} else {
-			Log.w("flSListener", "关闭手电筒");
+			Log.w("fl-flSListener", "关闭手电筒");
 			camera.stopPreview(); // 关掉亮灯
 			camera.release(); // 关掉照相机
 		}

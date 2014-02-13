@@ -20,26 +20,26 @@ public class FlashLightReceiver extends BroadcastReceiver {
 	 */
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		Log.w("broad", "receive " + flsl.isOn());
+		Log.w("fl-broad", "receive " + flsl.isOn());
 		flsl.setmContext(context);
 		final String action = intent.getAction();
 
-		Log.w("broad", action + " is ordered " + isOrderedBroadcast());
+		Log.w("fl-broad", action + " is ordered " + isOrderedBroadcast());
 
 		if (Intent.ACTION_SCREEN_ON.equals(action)) {
-			Log.w("broad", "screen is on...");
+			Log.w("fl-broad", "screen is on...");
 
 			flsl.regFLListener();
 			// Toast.makeText(context, "手电筒正常工作", Toast.LENGTH_LONG).show();
 
 		} else if (Intent.ACTION_SCREEN_OFF.equals(action)) {
-			Log.w("broad", "screen is off...");
+			Log.w("fl-broad", "screen is off...");
 
 			// 屏幕关闭时，状态不变，仅仅unreg
 			flsl.unRegFLListenerOnly();
 			// startService(CloseIntent);
 		} else if (Intent.ACTION_USER_PRESENT.equals(action)) {
-			Log.w("broad", "ACTION_USER_PRESENT");
+			Log.w("fl-broad", "ACTION_USER_PRESENT");
 			if (context.getClass().getName()
 					.equals(FlashLightService.class.getName())) {
 				flsl.unRegFLListener();

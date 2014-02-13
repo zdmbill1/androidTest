@@ -21,7 +21,7 @@ public class CloseFlashlightIS extends IntentService {
 		if (intent != null) {
 			final String action = intent.getAction();
 			long endTime = System.currentTimeMillis() + 10 * 1000;
-			Log.w("CloseFlashlightIS", "sleep start");
+			Log.w("fl-CloseFlashlightIS", "sleep start");
 			synchronized (this) {
 				if (System.currentTimeMillis() <= endTime) {
 					try {
@@ -32,7 +32,7 @@ public class CloseFlashlightIS extends IntentService {
 				}
 
 			}
-			Log.w("CloseFlashlightIS", "sleep over");
+			Log.w("fl-CloseFlashlightIS", "sleep over");
 		}
 	}	
 }

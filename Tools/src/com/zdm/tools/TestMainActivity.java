@@ -56,14 +56,14 @@ public class TestMainActivity extends Activity implements SensorEventListener {
 			@Override
 			public void onCheckedChanged(CompoundButton arg0, boolean isChecked) {
 				if (isChecked) {
-					Log.w("switch", "您已经打开了手电筒");
+					Log.w("fl-switch", "您已经打开了手电筒");
 					camera = Camera.open();
 					Parameters params = camera.getParameters();
 					params.setFlashMode(Parameters.FLASH_MODE_TORCH);
 					camera.setParameters(params);
 					camera.startPreview(); // 开始亮灯
 				} else {
-					Log.w("switch", "您已经关闭了手电筒");
+					Log.w("fl-switch", "您已经关闭了手电筒");
 					camera.stopPreview(); // 关掉亮灯
 					camera.release(); // 关掉照相机
 				}
@@ -101,18 +101,18 @@ public class TestMainActivity extends Activity implements SensorEventListener {
 			final String action = intent.getAction();
 			if (Intent.ACTION_SCREEN_ON.equals(action)) {
 
-				Log.w("broad", "screen is on...");
+				Log.w("fl-broad", "screen is on...");
 				sManager.registerListener(TestMainActivity.this, sShake,
 						SensorManager.SENSOR_DELAY_UI);
 				on = true;
 			} else if (Intent.ACTION_SCREEN_OFF.equals(action)) {
-				Log.w("broad", "screen is off...");
+				Log.w("fl-broad", "screen is off...");
 				on = false;
 				sManager.unregisterListener(TestMainActivity.this);
 
 				startService(CloseIntent);
 			} else if (Intent.ACTION_USER_PRESENT.equals(action)) {
-				Log.w("broad", "ACTION_USER_PRESENT");
+				Log.w("fl-broad", "ACTION_USER_PRESENT");
 				on = false;
 				sManager.unregisterListener(TestMainActivity.this);
 			}
@@ -146,7 +146,7 @@ public class TestMainActivity extends Activity implements SensorEventListener {
 			float suma = event.values[0] + event.values[1] + event.values[2];
 			long diffTime = currectTime - lastTime;
 			float speed = Math.abs(suma - oldSuma) * 1000 / diffTime;
-			// Log.w("sensor", "speed=" + speed + " sum=" + suma);
+			// Log.w("fl-sensor", "speed=" + speed + " sum=" + suma);
 			lastTime = currectTime;
 			oldSuma = suma;
 			// 建议speed在20以上，越小越灵敏
@@ -160,7 +160,7 @@ public class TestMainActivity extends Activity implements SensorEventListener {
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			Log.w("key", "press back");
+			Log.w("fl-key", "press back");
 			if (!on) {
 				sManager.unregisterListener(TestMainActivity.this);
 			}
@@ -176,10 +176,10 @@ public class TestMainActivity extends Activity implements SensorEventListener {
 
 	private void shake() {
 		if (powerTbt.isChecked()) {
-			Log.w("shake", "您已经打开了手电筒");
+			Log.w("fl-shake", "您已经打开了手电筒");
 			powerTbt.toggle();
 		} else {
-			Log.w("shake", "您已经关闭了手电筒");
+			Log.w("fl-shake", "您已经关闭了手电筒");
 			powerTbt.toggle();
 		}
 	}
@@ -188,7 +188,7 @@ public class TestMainActivity extends Activity implements SensorEventListener {
 	protected void onPause() {
 		super.onPause();
 		if (!on) {
-			Log.w("", "pause unreg");
+			Log.w("fl-", "pause unreg");
 			sManager.unregisterListener(TestMainActivity.this);
 		}
 	}
@@ -201,7 +201,7 @@ public class TestMainActivity extends Activity implements SensorEventListener {
 
 	@Override
 	protected void onDestroy() {
-		Log.w("Tools", "destory!!");
+		Log.w("fl-Tools", "destory!!");
 		if (!powerTbt.isChecked()) {
 			camera.stopPreview(); // 关掉亮灯
 			camera.release();
