@@ -1,17 +1,22 @@
 package com.zdm.tools;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.provider.Telephony;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ToggleButton;
 
+import com.zdm.tools.listener.phone.FlPhoneListener;
+import com.zdm.tools.listener.sensor.FlashLightSensorListener;
 import com.zdm.tools.receiver.FlashLightReceiver;
-import com.zdm.tools.sensor.listener.FlashLightSensorListener;
 import com.zdm.tools.services.FlashLightService;
 
 //TODO 需要解决turn_on广播收到不及时的问题，off的时候不unreg也没影响？
@@ -71,6 +76,8 @@ public class MainActivity extends Activity {
 //			}
 //		});
 		
+		TelephonyManager tm=(TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+		tm.listen(new FlPhoneListener(), PhoneStateListener.LISTEN_CALL_STATE);
 		
 	}
 

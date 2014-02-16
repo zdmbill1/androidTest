@@ -9,8 +9,8 @@ import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.util.Log;
 
+import com.zdm.tools.listener.sensor.FlashLightSensorListener;
 import com.zdm.tools.receiver.FlashLightReceiver;
-import com.zdm.tools.sensor.listener.FlashLightSensorListener;
 
 /**
  * @author bill 申请电源锁后锁屏继续工作

@@ -1,4 +1,4 @@
-package com.zdm.tools.sensor.listener;
+package com.zdm.tools.listener.sensor;
 
 import android.app.Activity;
 import android.content.Context;
