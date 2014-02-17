@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.provider.Telephony;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -32,6 +31,9 @@ public class MainActivity extends Activity {
 
 	private ToggleButton powerTbt;
 
+	private FlPhoneListener flpl=new FlPhoneListener();
+	private TelephonyManager tm;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -53,32 +55,33 @@ public class MainActivity extends Activity {
 		filter.addAction(Intent.ACTION_SCREEN_OFF);
 		filter.addAction(Intent.ACTION_SCREEN_ON);
 		filter.addAction(Intent.ACTION_USER_PRESENT);
-		Log.w("fl-flAct", "filter Priority="+filter.getPriority());
-		filter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
+		// filter.addAction(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
 		registerReceiver(flReceiver, filter);
 
 		powerTbt = (ToggleButton) findViewById(R.id.toggleButton1);
-		//点击按钮响应click,check状态改变不响应
+		// 点击按钮响应click,check状态改变不响应
 		powerTbt.setOnClickListener(new OnClickListener() {
-			
+
 			@Override
 			public void onClick(View arg0) {
 				flsl.shake();
-				
+
 			}
 		});
 
-//		powerTbt.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-//
-//			@Override
-//			public void onCheckedChanged(CompoundButton arg0, boolean isChecked) {
-//				
-//			}
-//		});
+		// powerTbt.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+		//
+		// @Override
+		// public void onCheckedChanged(CompoundButton arg0, boolean isChecked)
+		// {
+		//
+		// }
+		// });
+
+		tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 		
-		TelephonyManager tm=(TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-		tm.listen(new FlPhoneListener(), PhoneStateListener.LISTEN_CALL_STATE);
-		
+		tm.listen(flpl, PhoneStateListener.LISTEN_CALL_STATE);
+
 	}
 
 	@Override
@@ -106,16 +109,22 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		Log.w("fl-flAct", "resume reg");
-		flsl.regFLListener();
+		Log.w("fl-flAct", "resume");
+		if (!flsl.isInCallflag()) {
+			Log.w("fl-flAct", "resume reg");
+			flsl.regFLListener();
+		}
 	}
 
 	@Override
 	protected void onDestroy() {
 		Log.w("fl-flAct", "destory!!");
-		startService(flIntent);
+		
 		flsl.unRegFLListener();
+		tm.listen(flpl, PhoneStateListener.LISTEN_NONE);
 		unregisterReceiver(flReceiver);
+		
+		startService(flIntent);
 		super.onDestroy();
 
 		// System.exit(0);

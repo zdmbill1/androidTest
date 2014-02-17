@@ -35,6 +35,8 @@ public class FlashLightSensorListener implements SensorEventListener {
 	private SensorManager sManager;
 	private Sensor sShake;
 	private Context mContext;
+	//来电:true
+	private boolean inCallflag=false;
 
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -128,4 +130,15 @@ public class FlashLightSensorListener implements SensorEventListener {
 		this.on = on;
 	}
 
+	public boolean isInCallflag() {
+		Log.w("flSListener", "get inCallflag="+inCallflag);
+		return inCallflag;
+	}
+
+	public void setInCallflag(boolean inCallflag) {
+		this.inCallflag = inCallflag;
+		Log.w("flSListener", "set inCallflag="+inCallflag);
+	}
+
+	
 }

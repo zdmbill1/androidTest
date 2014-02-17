@@ -7,8 +7,11 @@ import android.content.IntentFilter;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import com.zdm.tools.listener.phone.FlPhoneListener;
 import com.zdm.tools.listener.sensor.FlashLightSensorListener;
 import com.zdm.tools.receiver.FlashLightReceiver;
 
@@ -24,6 +27,9 @@ public class FlashLightService extends Service {
 	private FlashLightReceiver flReceiver;
 
 	private WakeLock mWakeLock;
+
+	private FlPhoneListener flpl = new FlPhoneListener();
+	private TelephonyManager tm;
 
 	// 申请设备电源锁
 	private void acquireWakeLock() {
@@ -67,6 +73,8 @@ public class FlashLightService extends Service {
 		filter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
 		registerReceiver(flReceiver, filter);
 
+		tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+		tm.listen(flpl, PhoneStateListener.LISTEN_CALL_STATE);
 	}
 
 	@Override
@@ -74,6 +82,7 @@ public class FlashLightService extends Service {
 		super.onDestroy();
 		unregisterReceiver(flReceiver);
 		flsl.setmContext(null);
+		tm.listen(flpl, PhoneStateListener.LISTEN_NONE);
 		Log.w("fl-flSer", "destroy FlashLightService");
 	}
 }
