@@ -36,13 +36,14 @@
         <service android:name="com.zdm.tools.services.FlashLightService" >
         </service>
 
-       <!--  <receiver android:name="com.zdm.tools.receiver.FlashLightReceiver" >
-
+     <!--   <receiver android:name="com.zdm.tools.receiver.FlashLightReceiver" >
+			静态注册的应用程序关闭指的是应用在缓存中，即通过返回按钮退出程序
             
             <intent-filter>
                 <action android:name="android.intent.action.SCREEN_ON"/>
                 <action android:name="android.intent.action.SCREEN_OFF"/>
                 <action android:name="android.intent.action.USER_PRESENT"/>
+                <action android:name="android.intent.action.TIME_SET"></action>
             </intent-filter>
            
         </receiver> -->

@@ -1,5 +1,7 @@
 package com.zdm.androidtest;
 
+import java.util.Calendar;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -7,9 +9,13 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
-import android.content.res.Configuration;
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.AlarmClock;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,53 +42,58 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		Builder ab=new Builder(this);
+		Builder ab = new Builder(this);
 
 		ab.setPositiveButton("Yes", new OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				Toast.makeText(getApplicationContext(), "click yes", Toast.LENGTH_SHORT).show();
-				
-			}
-		});
-		
-		ab.setNegativeButton("No", new OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				Toast.makeText(getApplicationContext(), "click no", Toast.LENGTH_SHORT).show();
-				
-			}
-		});
-		//点击对话框以外地方不取消对话框，默认是true
-		ab.setCancelable(false);
-		
-		//setItems和setMssage一个生效
-		ab.setItems(new String[]{"list1","list2","list3"}, new OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				Toast.makeText(getApplicationContext(), which+" was clicked", Toast.LENGTH_SHORT).show();
-				
-			}
-		});
-//		ab.setMessage("alertDialog test");
-		//如果需要都显示就只有使用setView了,新建一个layout布局文件，然后
-		//LayoutInflater inf=LayoutInflater.from(this);
-		//View layout=inf.inflate();
-		//ab.setView(layout);
-		
-		ab.setTitle("zdmtitle");
-		//必须在onPause调用dimiss方法，不然有
-		//Activity has leaked window that was originally added错误
-		adialog=ab.show();
 
-		//add on local for test merge
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				Toast.makeText(getApplicationContext(), "click yes",
+						Toast.LENGTH_SHORT).show();
+
+			}
+		});
+
+		ab.setNegativeButton("No", new OnClickListener() {
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				Toast.makeText(getApplicationContext(), "click no",
+						Toast.LENGTH_SHORT).show();
+
+			}
+		});
+		// 点击对话框以外地方不取消对话框，默认是true
+		ab.setCancelable(false);
+
+		// setItems和setMssage一个生效
+		ab.setItems(new String[] { "list1", "list2", "list3" },
+				new OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						Toast.makeText(getApplicationContext(),
+								which + " was clicked", Toast.LENGTH_SHORT)
+								.show();
+
+					}
+				});
+		// ab.setMessage("alertDialog test");
+		// 如果需要都显示就只有使用setView了,新建一个layout布局文件，然后
+		// LayoutInflater inf=LayoutInflater.from(this);
+		// View layout=inf.inflate();
+		// ab.setView(layout);
+
+		ab.setTitle("zdmtitle");
+		// 必须在onPause调用dimiss方法，不然有
+		// Activity has leaked window that was originally added错误
+		adialog = ab.show();
+
+		// add on local for test merge
 		System.out.println("+++++++++++++++++");
-		//add something on web
-//		ActionBar actionBar = getActionBar();
-//		actionBar.hide();
+		// add something on web
+		// ActionBar actionBar = getActionBar();
+		// actionBar.hide();
 
 		// Button btn_send = (Button) findViewById(R.id.button1);
 		// 直接调用destroy
@@ -96,106 +107,145 @@ public class MainActivity extends Activity {
 		 * 
 		 * } });
 		 */
-		
-		SeekBar sk=(SeekBar) findViewById(R.id.sk);
+
+		SeekBar sk = (SeekBar) findViewById(R.id.sk);
 		sk.setMax(200);
-		showTv=(TextView) findViewById(R.id.showTv);
-		
+		showTv = (TextView) findViewById(R.id.showTv);
+
 		sk.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-			
+
 			@Override
 			public void onStopTrackingTouch(SeekBar arg0) {
 				showTv.setText("完成拖动");
-				
+
 			}
-			
+
 			@Override
 			public void onStartTrackingTouch(SeekBar arg0) {
 				showTv.setText("开始拖动");
-				
+
 			}
-			
+
 			@Override
 			public void onProgressChanged(SeekBar arg0, int arg1, boolean arg2) {
-				showTv.setText("拖动ing:"+arg1);
-				
+				showTv.setText("拖动ing:" + arg1);
+
 			}
 		});
-		
-		SearchView sv1=(SearchView) findViewById(R.id.searchView1);
-		SearchManager searchManager = (SearchManager)
-				 getSystemService(Context.SEARCH_SERVICE);
-		sv1.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+
+		SearchView sv1 = (SearchView) findViewById(R.id.searchView1);
+		SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+		sv1.setSearchableInfo(searchManager
+				.getSearchableInfo(getComponentName()));
 		sv1.setOnQueryTextListener(new OnQueryTextListener() {
-			
+
 			@Override
 			public boolean onQueryTextSubmit(String arg0) {
-				Toast.makeText(getApplicationContext(), arg0, Toast.LENGTH_SHORT).show();				
+				Toast.makeText(getApplicationContext(), arg0,
+						Toast.LENGTH_SHORT).show();
 				return false;
 			}
-			
+
 			@Override
 			public boolean onQueryTextChange(String arg0) {
 				// TODO Auto-generated method stub
 				return false;
 			}
 		});
+
+		// 必须添加权限 com.android.alarm.permission.SET_ALARM
+		// 默认第二天
+		// 同时获取alarm不start会报错。。。
+		// Calendar nc=Calendar.getInstance();
+		// Intent intent = new Intent(AlarmClock.ACTION_SET_ALARM);
+		// intent.putExtra(AlarmClock.EXTRA_HOUR,
+		// nc.get(Calendar.HOUR_OF_DAY)-1);
+		// intent.putExtra(AlarmClock.EXTRA_MINUTES, nc.get(Calendar.MINUTE)+1);
+		//
+		// intent.putExtra(AlarmClock.EXTRA_SKIP_UI, false);
+		// startActivity(intent);
+
+		// 获取alarm信息
+		final String tag_alarm = "tag_alarm";
+//		 Uri uri = Uri.parse("content://com.android.deskclock/alarm");
+		//获取最近的alarm的信息
+//		Uri uri = Settings.System.getUriFor(Settings.System.NEXT_ALARM_FORMATTED);
+		//alart默认声音
+//		Uri uri=Settings.System.DEFAULT_ALARM_ALERT_URI;
+		Uri uri=Settings.System.getUriFor(Settings.System.ALARM_ALERT);
+		Cursor c = getContentResolver().query(uri, null, null, null, null);
+		Log.w(tag_alarm, "no of records are " + c.getCount());
+		Log.w(tag_alarm, "no of columns are " + c.getColumnCount());
+		if (c != null) {
+			String names[] = c.getColumnNames();
+			for (String temp : names) {
+				Log.w(tag_alarm, "name= " + temp);
+			}
+			if (c.moveToFirst()) {
+				do {
+					for (int j = 0; j < c.getColumnCount(); j++) {
+						Log.w(tag_alarm,c.getColumnName(j) + " = " + c.getString(j));
+					}
+				} while (c.moveToNext());
+			}
+		}
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		Log.w("MainActivity", "onCreateOptionsMenu");
 		// Inflate the menu; this adds items to the action bar if it is present.
-//		getMenuInflater().inflate(R.menu.main, menu);
-//		MenuItem mItem = menu.findItem(R.id.action_search);
-//
-//		MenuItemCompat.setOnActionExpandListener(mItem,
-//				new OnActionExpandListener() {
-//
-//					@Override
-//					public boolean onMenuItemActionExpand(MenuItem arg0) {
-//						// TODO Auto-generated method stub
-//						return false;
-//					}
-//
-//					@Override
-//					public boolean onMenuItemActionCollapse(MenuItem arg0) {
-//						// TODO Auto-generated method stub
-//						return false;
-//					}
-//				});
+		// getMenuInflater().inflate(R.menu.main, menu);
+		// MenuItem mItem = menu.findItem(R.id.action_search);
+		//
+		// MenuItemCompat.setOnActionExpandListener(mItem,
+		// new OnActionExpandListener() {
+		//
+		// @Override
+		// public boolean onMenuItemActionExpand(MenuItem arg0) {
+		// // TODO Auto-generated method stub
+		// return false;
+		// }
+		//
+		// @Override
+		// public boolean onMenuItemActionCollapse(MenuItem arg0) {
+		// // TODO Auto-generated method stub
+		// return false;
+		// }
+		// });
 
-//		return super.onCreateOptionsMenu(menu);
+		// return super.onCreateOptionsMenu(menu);
 
-//		 Inflate the options menu from XML
-		 MenuInflater inflater = getMenuInflater();
-		 inflater.inflate(R.menu.main, menu);
-		
-		 // Get the SearchView and set the searchable configuration
-		 SearchManager searchManager = (SearchManager)
-		 getSystemService(Context.SEARCH_SERVICE);
-		 SearchView searchView = (SearchView)
-		 menu.findItem(R.id.action_search).getActionView();
-		 // Assumes current activity is the searchable activity
-		 Log.w("MainActivity", getComponentName().toString());;
-		 searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-		 searchView.setIconifiedByDefault(true); 
-		 searchView.setIconified(true);
-		 // Do not iconify the widget; expand it by default
-		
-		 searchView.setSubmitButtonEnabled(true);
-//		 searchView.setQueryRefinementEnabled(true);
-		 return true;
+		// Inflate the options menu from XML
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.main, menu);
+
+		// Get the SearchView and set the searchable configuration
+		SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+		SearchView searchView = (SearchView) menu.findItem(R.id.action_search)
+				.getActionView();
+		// Assumes current activity is the searchable activity
+		Log.w("MainActivity", getComponentName().toString());
+		;
+		searchView.setSearchableInfo(searchManager
+				.getSearchableInfo(getComponentName()));
+		searchView.setIconifiedByDefault(true);
+		searchView.setIconified(true);
+		// Do not iconify the widget; expand it by default
+
+		searchView.setSubmitButtonEnabled(true);
+		// searchView.setQueryRefinementEnabled(true);
+		return true;
 
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-//		case R.id.action_search:
-//			Log.w("MainActivity", "select search menu");
-//
-//			return super.onOptionsItemSelected(item);
+		// case R.id.action_search:
+		// Log.w("MainActivity", "select search menu");
+		//
+		// return super.onOptionsItemSelected(item);
 		case R.id.action_settings:
 			Log.w("MainActivity", "select settings menu");
 			return true;
@@ -282,10 +332,12 @@ public class MainActivity extends Activity {
 	public void onConfigurationChanged(Configuration newConfig) {
 		// TODO Auto-generated method stub
 		super.onConfigurationChanged(newConfig);
-		if(newConfig.orientation==Configuration.ORIENTATION_LANDSCAPE){
-			Toast.makeText(getApplicationContext(), "横屏", Toast.LENGTH_SHORT).show();
-		}else if(newConfig.orientation==Configuration.ORIENTATION_PORTRAIT){
-			Toast.makeText(getApplicationContext(), "竖屏", Toast.LENGTH_SHORT).show();
+		if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+			Toast.makeText(getApplicationContext(), "横屏", Toast.LENGTH_SHORT)
+					.show();
+		} else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+			Toast.makeText(getApplicationContext(), "竖屏", Toast.LENGTH_SHORT)
+					.show();
 		}
 	}
 }
