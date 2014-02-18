@@ -2,6 +2,8 @@ package com.zdm.androidtest;
 
 import java.util.Calendar;
 
+import com.zdm.androidtest.contentobserver.LastAlarmContentObserver;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -14,6 +16,8 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.AlarmClock;
 import android.provider.Settings;
 import android.util.Log;
@@ -90,7 +94,7 @@ public class MainActivity extends Activity {
 		adialog = ab.show();
 
 		// add on local for test merge
-		System.out.println("+++++++++++++++++");
+		
 		// add something on web
 		// ActionBar actionBar = getActionBar();
 		// actionBar.hide();
@@ -148,7 +152,6 @@ public class MainActivity extends Activity {
 
 			@Override
 			public boolean onQueryTextChange(String arg0) {
-				// TODO Auto-generated method stub
 				return false;
 			}
 		});
@@ -166,16 +169,16 @@ public class MainActivity extends Activity {
 		// startActivity(intent);
 
 		// 获取alarm信息
-		final String tag_alarm = "tag_alarm";
+		final String tag_alarm = "fl-tag_alarm";
 //		 Uri uri = Uri.parse("content://com.android.deskclock/alarm");
 		//获取最近的alarm的信息
-//		Uri uri = Settings.System.getUriFor(Settings.System.NEXT_ALARM_FORMATTED);
+		Uri uri = Settings.System.getUriFor(Settings.System.NEXT_ALARM_FORMATTED);
 		//alart默认声音
 //		Uri uri=Settings.System.DEFAULT_ALARM_ALERT_URI;
-		Uri uri=Settings.System.getUriFor(Settings.System.ALARM_ALERT);
+//		Uri uri=Settings.System.getUriFor(Settings.System.ALARM_ALERT);
 		Cursor c = getContentResolver().query(uri, null, null, null, null);
-		Log.w(tag_alarm, "no of records are " + c.getCount());
-		Log.w(tag_alarm, "no of columns are " + c.getColumnCount());
+		Log.w(tag_alarm, "No of records are " + c.getCount());
+		Log.w(tag_alarm, "No of columns are " + c.getColumnCount());
 		if (c != null) {
 			String names[] = c.getColumnNames();
 			for (String temp : names) {
@@ -189,8 +192,27 @@ public class MainActivity extends Activity {
 				} while (c.moveToNext());
 			}
 		}
+		laObser=new LastAlarmContentObserver(this, mHandler);
+		getContentResolver().registerContentObserver(uri, false, laObser);
 	}
 
+	private LastAlarmContentObserver laObser;
+	private Handler mHandler=new Handler(){
+
+		@Override
+		public void handleMessage(Message msg) {
+			switch (msg.what) {
+			case 1:
+				showTv.setText((CharSequence) msg.obj);				
+				break;
+			default:
+				break;
+			}
+			
+		}
+		
+	};
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		Log.w("MainActivity", "onCreateOptionsMenu");
@@ -250,7 +272,6 @@ public class MainActivity extends Activity {
 			Log.w("MainActivity", "select settings menu");
 			return true;
 		default:
-			// TODO Auto-generated method stub
 			return super.onOptionsItemSelected(item);
 		}
 
@@ -330,7 +351,6 @@ public class MainActivity extends Activity {
 
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
-		// TODO Auto-generated method stub
 		super.onConfigurationChanged(newConfig);
 		if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
 			Toast.makeText(getApplicationContext(), "横屏", Toast.LENGTH_SHORT)
