@@ -1,5 +1,7 @@
 package com.zdm.tools.listener.sensor;
 
+import java.util.Calendar;
+
 import android.app.Activity;
 import android.content.Context;
 import android.hardware.Camera;
@@ -35,8 +37,10 @@ public class FlashLightSensorListener implements SensorEventListener {
 	private SensorManager sManager;
 	private Sensor sShake;
 	private Context mContext;
-	//来电:true
-	private boolean inCallflag=false;
+	// 来电:true
+	private boolean inCallflag = false;
+	// 最后挂机时间
+	private Calendar lastHookTime;
 
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -65,32 +69,52 @@ public class FlashLightSensorListener implements SensorEventListener {
 	}
 
 	public void shake() {
-		on = !on;
-		if (on) {
-			Log.w("fl-flSListener", "打开手电筒");
-			camera = Camera.open();
-			Parameters params = camera.getParameters();
-			params.setFlashMode(Parameters.FLASH_MODE_TORCH);
-			camera.setParameters(params);
-			camera.startPreview(); // 开始亮灯
-		} else {
-			Log.w("fl-flSListener", "关闭手电筒");
-			camera.stopPreview(); // 关掉亮灯
-			camera.release(); // 关掉照相机
-		}
+		if (checkLastHookTime()) {
+			on = !on;
+			if (on) {
+				Log.w("fl-flSListener", "打开手电筒");
+				camera = Camera.open();
+				Parameters params = camera.getParameters();
+				params.setFlashMode(Parameters.FLASH_MODE_TORCH);
+				camera.setParameters(params);
+				camera.startPreview(); // 开始亮灯
+			} else {
+				Log.w("fl-flSListener", "关闭手电筒");
+				camera.stopPreview(); // 关掉亮灯
+				camera.release(); // 关掉照相机
+			}
 
-		if (null != mContext
-				&& mContext.getClass().getName()
-						.equals(MainActivity.class.getName())) {
-			Activity a = (Activity) mContext;
-			ToggleButton tb = (ToggleButton) a.findViewById(R.id.toggleButton1);
-			tb.setChecked(on);
+			if (null != mContext
+					&& mContext.getClass().getName()
+							.equals(MainActivity.class.getName())) {
+				Activity a = (Activity) mContext;
+				ToggleButton tb = (ToggleButton) a
+						.findViewById(R.id.toggleButton1);
+				tb.setChecked(on);
+			}
+		} else {
+			Log.w("fl-flSListener", "最后挂机时间到现在小于5秒不shake");	
 		}
 	}
 
 	public void regFLListener() {
+		if (checkLastHookTime()) {
+			sManager.registerListener(this, sShake,
+					SensorManager.SENSOR_DELAY_UI);
+			Log.w("fl-flSListener", "regFLListener");
+		} else {
+			Log.w("fl-flSListener", "最后挂机时间到现在小于5秒不reg");
+		}
+	}
 
-		sManager.registerListener(this, sShake, SensorManager.SENSOR_DELAY_UI);
+	/**
+	 * 检测当前时间到最后挂电话时间是否小于5秒
+	 * 
+	 * @return true:大于 false:小于
+	 */
+	public boolean checkLastHookTime() {
+		return Calendar.getInstance().getTimeInMillis()
+				- lastHookTime.getTimeInMillis() > 5000;
 	}
 
 	public void unRegFLListener() {
@@ -99,7 +123,9 @@ public class FlashLightSensorListener implements SensorEventListener {
 			camera.release(); // 关掉照相机
 			on = false;
 		}
+
 		sManager.unregisterListener(this);
+		Log.w("fl-flSListener", "unRegFLListener");
 	}
 
 	/**
@@ -107,6 +133,7 @@ public class FlashLightSensorListener implements SensorEventListener {
 	 */
 	public void unRegFLListenerOnly() {
 		sManager.unregisterListener(this);
+		Log.w("fl-flSListener", "unRegFLListenerOnly");
 	}
 
 	public Context getmContext() {
@@ -131,14 +158,21 @@ public class FlashLightSensorListener implements SensorEventListener {
 	}
 
 	public boolean isInCallflag() {
-		Log.w("flSListener", "get inCallflag="+inCallflag);
+		Log.w("flSListener", "get inCallflag=" + inCallflag);
 		return inCallflag;
 	}
 
 	public void setInCallflag(boolean inCallflag) {
 		this.inCallflag = inCallflag;
-		Log.w("flSListener", "set inCallflag="+inCallflag);
+		Log.w("flSListener", "set inCallflag=" + inCallflag);
 	}
 
-	
+	public Calendar getLastHookTime() {
+		return lastHookTime;
+	}
+
+	public void setLastHookTime(Calendar lastHookCal) {
+		this.lastHookTime = lastHookCal;
+	}
+
 }

@@ -1,5 +1,7 @@
 package com.zdm.tools;
 
+import java.util.Calendar;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -48,6 +50,10 @@ public class MainActivity extends Activity {
 
 		flsl.setmContext(this);
 		flsl.regFLListener();
+		Calendar c=Calendar.getInstance();
+		c.add(Calendar.SECOND, -5);
+		
+		flsl.setLastHookTime(c);
 		flIntent = new Intent(this, FlashLightService.class);
 
 		IntentFilter filter = new IntentFilter();
