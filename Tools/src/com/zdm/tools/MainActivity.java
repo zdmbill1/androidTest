@@ -6,7 +6,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.provider.Settings;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -15,6 +18,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ToggleButton;
 
+import com.zdm.tools.contentobserver.LastAlarmContentObserver;
 import com.zdm.tools.listener.phone.FlPhoneListener;
 import com.zdm.tools.listener.sensor.FlashLightSensorListener;
 import com.zdm.tools.receiver.FlashLightReceiver;
@@ -33,9 +37,11 @@ public class MainActivity extends Activity {
 
 	private ToggleButton powerTbt;
 
-	private FlPhoneListener flpl=new FlPhoneListener();
+	private FlPhoneListener flpl = new FlPhoneListener();
 	private TelephonyManager tm;
-	
+
+	private LastAlarmContentObserver laObser;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -48,12 +54,13 @@ public class MainActivity extends Activity {
 			}
 		}
 
-		flsl.setmContext(this);
-		flsl.regFLListener();
-		Calendar c=Calendar.getInstance();
+		Calendar c = Calendar.getInstance();
 		c.add(Calendar.SECOND, -5);
-		
 		flsl.setLastHookTime(c);
+		
+		flsl.setmContext(this);
+		flsl.regFLListener();		
+		
 		flIntent = new Intent(this, FlashLightService.class);
 
 		IntentFilter filter = new IntentFilter();
@@ -85,8 +92,14 @@ public class MainActivity extends Activity {
 		// });
 
 		tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-		
+
 		tm.listen(flpl, PhoneStateListener.LISTEN_CALL_STATE);
+
+		// 获取最近的alarm的信息
+		Uri uri = Settings.System
+				.getUriFor(Settings.System.NEXT_ALARM_FORMATTED);
+		laObser = new LastAlarmContentObserver(this, new Handler());
+		getContentResolver().registerContentObserver(uri, false, laObser);
 
 	}
 
@@ -125,12 +138,14 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onDestroy() {
 		Log.w("fl-flAct", "destory!!");
-		
+
 		flsl.unRegFLListener();
 		tm.listen(flpl, PhoneStateListener.LISTEN_NONE);
 		unregisterReceiver(flReceiver);
-		
+
 		startService(flIntent);
+		
+		getContentResolver().unregisterContentObserver(laObser);
 		super.onDestroy();
 
 		// System.exit(0);

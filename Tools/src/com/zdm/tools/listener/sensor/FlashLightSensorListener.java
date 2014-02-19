@@ -1,6 +1,9 @@
 package com.zdm.tools.listener.sensor;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
@@ -41,6 +44,8 @@ public class FlashLightSensorListener implements SensorEventListener {
 	private boolean inCallflag = false;
 	// 最后挂机时间
 	private Calendar lastHookTime;
+	//最近的闹钟时间
+	private List<Calendar> nextAlarmClocks=new ArrayList<Calendar>();
 
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -105,6 +110,25 @@ public class FlashLightSensorListener implements SensorEventListener {
 		} else {
 			Log.w("fl-flSListener", "最后挂机时间到现在小于5秒不reg");
 		}
+	}
+	
+	/**
+	 * 通过判断最近的alarm clock 时间来判断闹钟是否在响
+	 * @return
+	 * true:闹钟在响
+	 */
+	public boolean checkClockRing(){
+		Calendar cal=Calendar.getInstance();
+		for(int i=nextAlarmClocks.size()-1;i>=0;i--){
+			if(cal.getTimeInMillis()>nextAlarmClocks.get(i).getTimeInMillis()){
+				if(cal.getTimeInMillis()-nextAlarmClocks.get(i).getTimeInMillis()>30*1000){
+					nextAlarmClocks.remove(i);
+				}else{
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -175,4 +199,18 @@ public class FlashLightSensorListener implements SensorEventListener {
 		this.lastHookTime = lastHookCal;
 	}
 
+	public List<Calendar> getNextAlarmClocks() {
+		return nextAlarmClocks;
+	}
+
+	public void setNextAlarmClocks(List<Calendar> nextAlarmClocks) {
+		this.nextAlarmClocks = nextAlarmClocks;
+	}
+
+	public void addNextAlarmClock(Calendar cal){
+		if(!nextAlarmClocks.contains(cal)){
+			nextAlarmClocks.add(cal);
+			Collections.reverse(nextAlarmClocks);
+		}
+	}
 }
