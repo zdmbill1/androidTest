@@ -44,8 +44,11 @@ public class FlashLightSensorListener implements SensorEventListener {
 	private boolean inCallflag = false;
 	// 最后挂机时间
 	private Calendar lastHookTime;
-	//最近的闹钟时间
-	private List<Calendar> nextAlarmClocks=new ArrayList<Calendar>();
+	// 最近的闹钟时间
+	// 只保持1/2个时间，一个是正在闹的时间，一个是最近的闹钟时间
+	private List<Calendar> nextAlarmClocks = new ArrayList<Calendar>();
+	
+	private boolean pressMenuFlag=false;
 
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -74,7 +77,7 @@ public class FlashLightSensorListener implements SensorEventListener {
 	}
 
 	public void shake() {
-		if (checkLastHookTime()) {
+		if (checkLastHookTime()&&!checkClockRing()) {
 			on = !on;
 			if (on) {
 				Log.w("fl-flSListener", "打开手电筒");
@@ -98,7 +101,7 @@ public class FlashLightSensorListener implements SensorEventListener {
 				tb.setChecked(on);
 			}
 		} else {
-			Log.w("fl-flSListener", "最后挂机时间到现在小于5秒不shake");	
+			Log.w("fl-flSListener", "最后挂机时间到现在小于5秒不shake");
 		}
 	}
 
@@ -111,24 +114,26 @@ public class FlashLightSensorListener implements SensorEventListener {
 			Log.w("fl-flSListener", "最后挂机时间到现在小于5秒不reg");
 		}
 	}
-	
+
 	/**
-	 * 通过判断最近的alarm clock 时间来判断闹钟是否在响
-	 * @return
-	 * true:闹钟在响
+	 * 通过判断最近的alarm clock 时间来判断闹钟是否在响 暂定30秒内都表示再闹
+	 * 
+	 * @return true:闹钟在响
 	 */
-	public boolean checkClockRing(){
-		Calendar cal=Calendar.getInstance();
-		for(int i=nextAlarmClocks.size()-1;i>=0;i--){
-			if(cal.getTimeInMillis()>nextAlarmClocks.get(i).getTimeInMillis()){
-				if(cal.getTimeInMillis()-nextAlarmClocks.get(i).getTimeInMillis()>30*1000){
-					nextAlarmClocks.remove(i);
-				}else{
-					return true;
-				}
+	public boolean checkClockRing() {
+		Calendar nowCal = Calendar.getInstance();
+		// ==0表示没有闹钟无须考虑
+		if (nextAlarmClocks.size() == 0) {
+			return false;
+		} else {
+			Calendar cal = nextAlarmClocks.get(0);
+			if (nowCal.getTimeInMillis() > cal.getTimeInMillis()
+					&& nowCal.getTimeInMillis() - cal.getTimeInMillis() < 30 * 1000) {
+				return true;
+			} else {
+				return false;
 			}
 		}
-		return false;
 	}
 
 	/**
@@ -207,10 +212,31 @@ public class FlashLightSensorListener implements SensorEventListener {
 		this.nextAlarmClocks = nextAlarmClocks;
 	}
 
-	public void addNextAlarmClock(Calendar cal){
-		if(!nextAlarmClocks.contains(cal)){
+	public void addNextAlarmClock(Calendar cal) {
+		Calendar nowCal = Calendar.getInstance();
+		if (!nextAlarmClocks.contains(cal)) {
+			for (Calendar c : nextAlarmClocks) {
+				if (nowCal.getTimeInMillis() > c.getTimeInMillis()
+						&& nowCal.getTimeInMillis() - c.getTimeInMillis() < 5 * 1000) {
+					nextAlarmClocks.clear();
+					nextAlarmClocks.add(c);
+					nextAlarmClocks.add(cal);
+
+					break;
+				}
+			}
+			nextAlarmClocks.clear();
 			nextAlarmClocks.add(cal);
-			Collections.reverse(nextAlarmClocks);
 		}
 	}
+
+	public boolean isPressMenuFlag() {
+		return pressMenuFlag;
+	}
+
+	public void setPressMenuFlag(boolean pressMenuFlag) {
+		this.pressMenuFlag = pressMenuFlag;
+	}
+	
+	
 }

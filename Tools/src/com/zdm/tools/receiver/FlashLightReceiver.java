@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.zdm.tools.MainActivity;
 import com.zdm.tools.listener.sensor.FlashLightSensorListener;
 import com.zdm.tools.services.FlashLightService;
 
@@ -41,11 +42,12 @@ public class FlashLightReceiver extends BroadcastReceiver {
 			// 屏幕关闭时，状态不变，仅仅unreg
 			// flsl.unRegFLListenerOnly();
 			// startService(CloseIntent);
-			//TODO 新增判断是否按了menu键判断
+			// TODO 新增判断是否按了menu键判断
 		} else if (Intent.ACTION_USER_PRESENT.equals(action)) {
 			Log.w("fl-broad", "ACTION_USER_PRESENT");
 			if (context.getClass().getName()
-					.equals(FlashLightService.class.getName())) {
+					.equals(FlashLightService.class.getName())
+					|| flsl.isPressMenuFlag()) {
 				flsl.unRegFLListener();
 			}
 		}

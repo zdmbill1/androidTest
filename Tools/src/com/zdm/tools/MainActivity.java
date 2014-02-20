@@ -25,7 +25,6 @@ import com.zdm.tools.receiver.FlashLightReceiver;
 import com.zdm.tools.services.FlashLightService;
 
 //TODO 需要解决turn_on广播收到不及时的问题，off的时候不unreg也没影响？
-//TODO 考虑来电，闹钟特殊情况
 //TODO 增加各种设置以及保存
 public class MainActivity extends Activity {
 
@@ -100,6 +99,8 @@ public class MainActivity extends Activity {
 				.getUriFor(Settings.System.NEXT_ALARM_FORMATTED);
 		laObser = new LastAlarmContentObserver(this, new Handler());
 		getContentResolver().registerContentObserver(uri, false, laObser);
+		
+		flsl.setPressMenuFlag(false);
 
 	}
 
@@ -119,6 +120,13 @@ public class MainActivity extends Activity {
 	 */
 
 	@Override
+	public void onAttachedToWindow() {
+		super.onAttachedToWindow();
+		flsl.setPressMenuFlag(true);
+		Log.w("fl-flAct", "press menu");
+	}
+	
+	@Override
 	protected void onPause() {
 		super.onPause();
 		Log.w("fl-flAct", "pause unreg");
@@ -133,6 +141,7 @@ public class MainActivity extends Activity {
 			Log.w("fl-flAct", "resume reg");
 			flsl.regFLListener();
 		}
+		flsl.setPressMenuFlag(false);
 	}
 
 	@Override
