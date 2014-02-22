@@ -50,6 +50,7 @@
         </receiver> -->
 
         <activity
+            android:launchMode="singleInstance"
             android:configChanges="orientation|screenSize"
             android:name="com.zdm.tools.MainActivity"
             android:label="@string/app_name" >

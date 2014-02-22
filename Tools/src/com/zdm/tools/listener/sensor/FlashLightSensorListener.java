@@ -2,7 +2,6 @@ package com.zdm.tools.listener.sensor;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.List;
 
 import android.app.Activity;
@@ -18,6 +17,7 @@ import android.widget.ToggleButton;
 
 import com.zdm.tools.MainActivity;
 import com.zdm.tools.R;
+import com.zdm.tools.audio.BackAudioPlay;
 
 public class FlashLightSensorListener implements SensorEventListener {
 
@@ -79,6 +79,7 @@ public class FlashLightSensorListener implements SensorEventListener {
 	public void shake() {
 		if (checkLastHookTime()&&!checkClockRing()) {
 			on = !on;
+			BackAudioPlay.getInstance().playBackAudio("shake");
 			if (on) {
 				Log.w("fl-flSListener", "打开手电筒");
 				camera = Camera.open();
@@ -109,6 +110,7 @@ public class FlashLightSensorListener implements SensorEventListener {
 		if (checkLastHookTime()) {
 			sManager.registerListener(this, sShake,
 					SensorManager.SENSOR_DELAY_UI);
+			BackAudioPlay.getInstance().playBackAudio("beep");
 			Log.w("fl-flSListener", "regFLListener");
 		} else {
 			Log.w("fl-flSListener", "最后挂机时间到现在小于5秒不reg");
@@ -129,8 +131,10 @@ public class FlashLightSensorListener implements SensorEventListener {
 			Calendar cal = nextAlarmClocks.get(0);
 			if (nowCal.getTimeInMillis() > cal.getTimeInMillis()
 					&& nowCal.getTimeInMillis() - cal.getTimeInMillis() < 30 * 1000) {
+				Log.w("fl-flSListener", "checkClockRing=true");
 				return true;
 			} else {
+				Log.w("fl-flSListener", "checkClockRing=false");
 				return false;
 			}
 		}
@@ -142,6 +146,9 @@ public class FlashLightSensorListener implements SensorEventListener {
 	 * @return true:大于 false:小于
 	 */
 	public boolean checkLastHookTime() {
+		if(lastHookTime==null){
+			return true;
+		}
 		return Calendar.getInstance().getTimeInMillis()
 				- lastHookTime.getTimeInMillis() > 5000;
 	}
@@ -154,6 +161,7 @@ public class FlashLightSensorListener implements SensorEventListener {
 		}
 
 		sManager.unregisterListener(this);
+		BackAudioPlay.getInstance().playBackAudio("beep");
 		Log.w("fl-flSListener", "unRegFLListener");
 	}
 
@@ -162,6 +170,7 @@ public class FlashLightSensorListener implements SensorEventListener {
 	 */
 	public void unRegFLListenerOnly() {
 		sManager.unregisterListener(this);
+		BackAudioPlay.getInstance().playBackAudio("beep");
 		Log.w("fl-flSListener", "unRegFLListenerOnly");
 	}
 
@@ -200,7 +209,7 @@ public class FlashLightSensorListener implements SensorEventListener {
 		return lastHookTime;
 	}
 
-	public void setLastHookTime(Calendar lastHookCal) {
+	public synchronized void setLastHookTime(Calendar lastHookCal) {
 		this.lastHookTime = lastHookCal;
 	}
 
