@@ -8,5 +8,6 @@
     <string name="power_on">关灯</string>
     <string name="power_off">开灯</string>
     <string name="title_activity_flash_light">FlashLightActivity</string>
+    <string name="advancedSet">高级设置</string>
 
 </resources>

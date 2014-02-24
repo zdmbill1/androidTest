@@ -6,6 +6,8 @@ import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.hardware.Camera;
 import android.hardware.Camera.Parameters;
 import android.hardware.Sensor;
@@ -52,6 +54,14 @@ public class FlashLightSensorListener implements SensorEventListener {
 
 	private boolean playShake = true;
 	private boolean playReg = true;
+	
+	private int shakeSensitive=0;
+	
+	private int missAlarmClock=0;
+	private int missLastHook=0;
+	
+	private SharedPreferences sp;
+	private Editor editor;
 
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -195,6 +205,8 @@ public class FlashLightSensorListener implements SensorEventListener {
 			sManager = (SensorManager) mContext
 					.getSystemService(Context.SENSOR_SERVICE);
 			sShake = sManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+			sp = mContext.getSharedPreferences("SP", Context.MODE_PRIVATE);
+			editor = sp.edit();
 		}
 	}
 
@@ -260,10 +272,65 @@ public class FlashLightSensorListener implements SensorEventListener {
 
 	public void setPlayShake(boolean playShake) {
 		this.playShake = playShake;
+		editor.putBoolean("playShake", playShake);
+		editor.commit();
 	}
 
 	public void setPlayReg(boolean playReg) {
 		this.playReg = playReg;
+		editor.putBoolean("playReg", playReg);
+		editor.commit();
+	}
+	
+	
+
+	public boolean isPlayShake() {
+		return playShake;
 	}
 
+	public boolean isPlayReg() {
+		return playReg;
+	}
+
+	public void setShakeSensitive(int shakeSensitive) {
+		this.shakeSensitive = shakeSensitive;
+		editor.putInt("shakeSensitive", shakeSensitive);
+		editor.commit();
+	}
+
+	public void setMissAlarmClock(int missAlarmClock) {
+		this.missAlarmClock = missAlarmClock;
+		editor.putInt("missAlarmClock", missAlarmClock);
+		editor.commit();
+	}
+
+	public void setMissLastHook(int missLastHook) {
+		this.missLastHook = missLastHook;
+		editor.putInt("missLastHook", missLastHook);
+		editor.commit();
+	}
+
+	public int getShakeSensitive() {
+		if(shakeSensitive==0){
+			shakeSensitive=sp.getInt("shakeSensitive", 30);
+		}
+		return shakeSensitive;
+	}
+
+	public int getMissAlarmClock() {
+		if(missAlarmClock==0){
+			missAlarmClock=sp.getInt("missAlarmClock", 30);
+		}
+		return missAlarmClock;
+	}
+
+	public int getMissLastHook() {
+		if(missLastHook==0){
+			missLastHook=sp.getInt("missLastHook", 10);
+		}
+		return missLastHook;
+	}
+
+	
+	
 }
