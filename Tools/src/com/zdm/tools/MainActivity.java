@@ -1,6 +1,8 @@
 package com.zdm.tools;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
@@ -16,6 +18,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.ToggleButton;
 
 import com.zdm.tools.contentobserver.LastAlarmContentObserver;
@@ -41,6 +45,8 @@ public class MainActivity extends Activity {
 
 	private LastAlarmContentObserver laObser;
 
+	private ListView setLv;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -56,10 +62,10 @@ public class MainActivity extends Activity {
 		Calendar c = Calendar.getInstance();
 		c.add(Calendar.SECOND, -5);
 		flsl.setLastHookTime(c);
-		
+
 		flsl.setmContext(this);
-		flsl.regFLListener();		
-		
+		flsl.regFLListener();
+
 		flIntent = new Intent(this, FlashLightService.class);
 
 		IntentFilter filter = new IntentFilter();
@@ -99,8 +105,17 @@ public class MainActivity extends Activity {
 				.getUriFor(Settings.System.NEXT_ALARM_FORMATTED);
 		laObser = new LastAlarmContentObserver(this, new Handler());
 		getContentResolver().registerContentObserver(uri, false, laObser);
-		
+
 		flsl.setPressMenuFlag(false);
+
+		setLv = (ListView) findViewById(R.id.setLv);
+		List<String> data = new ArrayList<String>();
+        data.add("测试数据1");
+        data.add("测试数据2");
+        data.add("测试数据3");
+        data.add("测试数据4");         
+        
+		setLv.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, data));
 
 	}
 
@@ -125,7 +140,7 @@ public class MainActivity extends Activity {
 		flsl.setPressMenuFlag(true);
 		Log.w("fl-flAct", "press menu");
 	}
-	
+
 	@Override
 	protected void onPause() {
 		super.onPause();
@@ -153,7 +168,7 @@ public class MainActivity extends Activity {
 		unregisterReceiver(flReceiver);
 
 		startService(flIntent);
-		
+
 		getContentResolver().unregisterContentObserver(laObser);
 		super.onDestroy();
 

@@ -31,4 +31,10 @@
         android:text="@string/powerBt"/>
     -->
 
+    <ListView
+        android:id="@+id/setLv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+    </ListView>
+
 </LinearLayout>
