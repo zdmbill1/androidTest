@@ -1,9 +1,5 @@
 package com.zdm.androidtest;
 
-import java.util.Calendar;
-
-import com.zdm.androidtest.contentobserver.LastAlarmContentObserver;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -18,7 +14,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.AlarmClock;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
@@ -32,6 +27,8 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.zdm.androidtest.contentobserver.LastAlarmContentObserver;
 
 public class MainActivity extends Activity {
 

@@ -4,13 +4,20 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.LoaderManager;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.Loader;
+import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.Settings;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -18,10 +25,17 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.CursorAdapter;
 import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
+import android.widget.Toast;
 import android.widget.ToggleButton;
+import android.widget.TwoLineListItem;
 
+import com.zdm.tools.adapter.MyListAdapter;
 import com.zdm.tools.audio.BackAudioPlay;
 import com.zdm.tools.contentobserver.LastAlarmContentObserver;
 import com.zdm.tools.listener.phone.FlPhoneListener;
@@ -31,8 +45,16 @@ import com.zdm.tools.services.FlashLightService;
 
 //TODO 需要解决turn_on广播收到不及时的问题，off的时候不unreg也没影响？
 //TODO 增加各种设置以及保存,晃动声音，感光，晃动强弱，电筒开启时间，闹钟/挂电话时间。。
-//紧紧华为手机Calendar.getInstance()报java.lang.NumberFormatException: Invalid int: ""错误？
-public class MainActivity extends Activity {
+//仅仅华为手机Calendar.getInstance()报java.lang.NumberFormatException: Invalid int: ""错误？
+/**
+ * CursorLoader会当数据更新时自动更新，类似于ContentObserver,继承LoaderManager.LoaderCallbacks<Cursor>
+ * oncreate方法中初始化getLoaderManager().initLoader(0, null, this);
+ * 在onLoadFinished方法中填充adapter的游标数据scAdapter.swapCursor(data);
+ * @author bill
+ *
+ */
+@SuppressLint("NewApi")
+public class MainActivity extends Activity{
 
 	private Intent flIntent;
 
@@ -49,6 +71,7 @@ public class MainActivity extends Activity {
 
 	private ListView setLv;
 
+	@SuppressLint("NewApi")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -61,15 +84,14 @@ public class MainActivity extends Activity {
 			}
 		}
 
-
 		Calendar c = Calendar.getInstance();
 		c.add(Calendar.SECOND, -5);
 		flsl.setLastHookTime(c);
 
-//		Calendar c = Calendar.getInstance();
-//		c.add(Calendar.SECOND, -5);
-//		flsl.setLastHookTime(c);
-		
+		// Calendar c = Calendar.getInstance();
+		// c.add(Calendar.SECOND, -5);
+		// flsl.setLastHookTime(c);
+
 		flsl.setmContext(this);
 		flsl.regFLListener();
 
@@ -89,7 +111,7 @@ public class MainActivity extends Activity {
 
 			@Override
 			public void onClick(View arg0) {
-				flsl.shake();				
+				flsl.shake();
 			}
 		});
 
@@ -116,20 +138,74 @@ public class MainActivity extends Activity {
 
 		setLv = (ListView) findViewById(R.id.setLv);
 		List<String> data = new ArrayList<String>();
-        data.add("测试数据1");
-        data.add("测试数据2");
-        data.add("测试数据3");
-        data.add("测试数据4");         
-        
-		setLv.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, data));
+		data.add("测试数据1");
+		data.add("测试数据2");
+		data.add("测试数据3");
+		data.add("测试数据4");
 
+		ArrayAdapter<String> aAdapter = new ArrayAdapter<String>(this,
+				R.layout.setlist, data);
+		setLv.setAdapter(aAdapter);
+
+		Cursor cur=getContentResolver().query(Phone.CONTENT_URI, null, null, null, Phone.DISPLAY_NAME);
+
+		scAdapter = new SimpleCursorAdapter(this,
+				R.layout.setlist, cur,
+				new String[] { Phone.DISPLAY_NAME,Phone.NUMBER },
+				new int[] { R.id.textView1,R.id.checkBox1 },CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+//		setLv.setAdapter(scAdapter);
+		
+		SharedPreferences sp = getSharedPreferences("SP", Context.MODE_PRIVATE);
+		
+		ArrayList<String[]> mData=new ArrayList<String[]>();
+		mData.add(new String[]{"摇晃声音",String.valueOf(sp.getBoolean("playShake", true))});
+		mData.add(new String[]{"锁屏/解锁声音",String.valueOf(sp.getBoolean("playReg", true))});
+		
+		MyListAdapter mListAdapter=new MyListAdapter(mData, this, R.layout.setlist);
+		setLv.setAdapter(mListAdapter);
+		setLv.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				Toast.makeText(getApplicationContext(), position, Toast.LENGTH_SHORT).show();
+				
+			}
+		});
+		
 		BackAudioPlay.getInstance();
-//		sp=new SoundPool(2, AudioManager.STREAM_MUSIC, 0);
-//		spMap.put("beep", sp.load(this, R.raw.beep, 1));
-		
-//		BackAudioPlay.getInstance().playBackAudio(R.raw.shake);
+		// sp=new SoundPool(2, AudioManager.STREAM_MUSIC, 0);
+		// spMap.put("beep", sp.load(this, R.raw.beep, 1));
+
+		// BackAudioPlay.getInstance().playBackAudio(R.raw.shake);
 	}
-		
+	private SimpleCursorAdapter scAdapter;
+
+//	// Called when a new Loader needs to be created
+//    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+//        // Now create and return a CursorLoader that will take care of
+//        // creating a Cursor for the data being displayed.
+//        return new CursorLoader(this, Phone.CONTENT_URI,
+//                null, null, null, Phone.DISPLAY_NAME);
+//    }
+//
+//    // Called when a previously created loader has finished loading
+//    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+//        // Swap the new cursor in.  (The framework will take care of closing the
+//        // old cursor once we return.)
+//    	scAdapter.swapCursor(data);
+//    	Log.w("fl-flAct", "onLoadFinished");    	
+//    }
+//
+//    // Called when a previously created loader is reset, making the data unavailable
+//    public void onLoaderReset(Loader<Cursor> loader) {
+//        // This is called when the last Cursor provided to onLoadFinished()
+//        // above is about to be closed.  We need to make sure we are no
+//        // longer using it.
+//    	scAdapter.swapCursor(null);
+//    	Log.w("fl-flAct", "onLoaderReset");    	
+//    }
+
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -168,7 +244,7 @@ public class MainActivity extends Activity {
 			flsl.regFLListener();
 		}
 		flsl.setPressMenuFlag(false);
-		
+
 	}
 
 	@Override
@@ -186,6 +262,11 @@ public class MainActivity extends Activity {
 
 		// System.exit(0);
 	}
+
+
+
+
+	
 
 	// 配置android:configChanges="orientation|screenSize"后无特殊目的可以不用重写onConfigurationChanged方法
 	/*

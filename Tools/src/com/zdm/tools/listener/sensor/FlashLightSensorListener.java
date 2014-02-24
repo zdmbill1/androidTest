@@ -47,12 +47,15 @@ public class FlashLightSensorListener implements SensorEventListener {
 	// 最近的闹钟时间
 	// 只保持1/2个时间，一个是正在闹的时间，一个是最近的闹钟时间
 	private List<Calendar> nextAlarmClocks = new ArrayList<Calendar>();
-	
-	private boolean pressMenuFlag=false;
+
+	private boolean pressMenuFlag = false;
+
+	private boolean playShake = true;
+	private boolean playReg = true;
 
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
-		Log.e("flSListener", "not implemmented");
+		Log.e("fl-flSListener", "not implemmented");
 	}
 
 	@Override
@@ -77,9 +80,11 @@ public class FlashLightSensorListener implements SensorEventListener {
 	}
 
 	public void shake() {
-		if (checkLastHookTime()&&!checkClockRing()) {
+		if (checkLastHookTime() && !checkClockRing()) {
 			on = !on;
-			BackAudioPlay.getInstance().playBackAudio("shake");
+			if (playShake) {
+				BackAudioPlay.getInstance().playBackAudio("shake");
+			}
 			if (on) {
 				Log.w("fl-flSListener", "打开手电筒");
 				camera = Camera.open();
@@ -110,7 +115,9 @@ public class FlashLightSensorListener implements SensorEventListener {
 		if (checkLastHookTime()) {
 			sManager.registerListener(this, sShake,
 					SensorManager.SENSOR_DELAY_UI);
-			BackAudioPlay.getInstance().playBackAudio("beep");
+			if (playReg) {
+				BackAudioPlay.getInstance().playBackAudio("beep");
+			}
 			Log.w("fl-flSListener", "regFLListener");
 		} else {
 			Log.w("fl-flSListener", "最后挂机时间到现在小于5秒不reg");
@@ -146,7 +153,7 @@ public class FlashLightSensorListener implements SensorEventListener {
 	 * @return true:大于 false:小于
 	 */
 	public boolean checkLastHookTime() {
-		if(lastHookTime==null){
+		if (lastHookTime == null) {
 			return true;
 		}
 		return Calendar.getInstance().getTimeInMillis()
@@ -161,7 +168,9 @@ public class FlashLightSensorListener implements SensorEventListener {
 		}
 
 		sManager.unregisterListener(this);
-		BackAudioPlay.getInstance().playBackAudio("beep");
+		if (playReg) {
+			BackAudioPlay.getInstance().playBackAudio("beep");
+		}
 		Log.w("fl-flSListener", "unRegFLListener");
 	}
 
@@ -170,7 +179,9 @@ public class FlashLightSensorListener implements SensorEventListener {
 	 */
 	public void unRegFLListenerOnly() {
 		sManager.unregisterListener(this);
-		BackAudioPlay.getInstance().playBackAudio("beep");
+		if (playReg) {
+			BackAudioPlay.getInstance().playBackAudio("beep");
+		}
 		Log.w("fl-flSListener", "unRegFLListenerOnly");
 	}
 
@@ -196,13 +207,13 @@ public class FlashLightSensorListener implements SensorEventListener {
 	}
 
 	public boolean isInCallflag() {
-		Log.w("flSListener", "get inCallflag=" + inCallflag);
+		Log.w("fl-flSListener", "get inCallflag=" + inCallflag);
 		return inCallflag;
 	}
 
 	public void setInCallflag(boolean inCallflag) {
 		this.inCallflag = inCallflag;
-		Log.w("flSListener", "set inCallflag=" + inCallflag);
+		Log.w("fl-flSListener", "set inCallflag=" + inCallflag);
 	}
 
 	public Calendar getLastHookTime() {
@@ -246,6 +257,13 @@ public class FlashLightSensorListener implements SensorEventListener {
 	public void setPressMenuFlag(boolean pressMenuFlag) {
 		this.pressMenuFlag = pressMenuFlag;
 	}
-	
-	
+
+	public void setPlayShake(boolean playShake) {
+		this.playShake = playShake;
+	}
+
+	public void setPlayReg(boolean playReg) {
+		this.playReg = playReg;
+	}
+
 }
