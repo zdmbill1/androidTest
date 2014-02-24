@@ -22,6 +22,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ToggleButton;
 
+import com.zdm.tools.audio.BackAudioPlay;
 import com.zdm.tools.contentobserver.LastAlarmContentObserver;
 import com.zdm.tools.listener.phone.FlPhoneListener;
 import com.zdm.tools.listener.sensor.FlashLightSensorListener;
@@ -30,6 +31,7 @@ import com.zdm.tools.services.FlashLightService;
 
 //TODO 需要解决turn_on广播收到不及时的问题，off的时候不unreg也没影响？
 //TODO 增加各种设置以及保存,晃动声音，感光，晃动强弱，电筒开启时间，闹钟/挂电话时间。。
+//紧紧华为手机Calendar.getInstance()报java.lang.NumberFormatException: Invalid int: ""错误？
 public class MainActivity extends Activity {
 
 	private Intent flIntent;
@@ -59,10 +61,15 @@ public class MainActivity extends Activity {
 			}
 		}
 
+
 		Calendar c = Calendar.getInstance();
 		c.add(Calendar.SECOND, -5);
 		flsl.setLastHookTime(c);
 
+//		Calendar c = Calendar.getInstance();
+//		c.add(Calendar.SECOND, -5);
+//		flsl.setLastHookTime(c);
+		
 		flsl.setmContext(this);
 		flsl.regFLListener();
 
@@ -82,8 +89,7 @@ public class MainActivity extends Activity {
 
 			@Override
 			public void onClick(View arg0) {
-				flsl.shake();
-
+				flsl.shake();				
 			}
 		});
 
@@ -117,8 +123,13 @@ public class MainActivity extends Activity {
         
 		setLv.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, data));
 
+		BackAudioPlay.getInstance();
+//		sp=new SoundPool(2, AudioManager.STREAM_MUSIC, 0);
+//		spMap.put("beep", sp.load(this, R.raw.beep, 1));
+		
+//		BackAudioPlay.getInstance().playBackAudio(R.raw.shake);
 	}
-
+		
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -157,6 +168,7 @@ public class MainActivity extends Activity {
 			flsl.regFLListener();
 		}
 		flsl.setPressMenuFlag(false);
+		
 	}
 
 	@Override
