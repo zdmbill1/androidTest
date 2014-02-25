@@ -9,5 +9,6 @@
     <string name="power_off">开灯</string>
     <string name="title_activity_flash_light">FlashLightActivity</string>
     <string name="advancedSet">高级设置</string>
+    <string name="num_picker_tv">设置时间</string>
 
 </resources>

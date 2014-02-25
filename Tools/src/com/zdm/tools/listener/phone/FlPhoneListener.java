@@ -17,9 +17,9 @@ public class FlPhoneListener extends PhoneStateListener {
 			Log.w("fl-flPListener", "手机挂机");
 			FlashLightSensorListener.getInstance().setInCallflag(false);
 			Calendar c = Calendar.getInstance();
-			//第一次启动，设置时间推迟5秒
+			//第一次启动，设置时间推迟MissLastHook秒
 			if(FlashLightSensorListener.getInstance().getLastHookTime()==null){
-				c.add(Calendar.SECOND, -5);
+				c.add(Calendar.SECOND, -FlashLightSensorListener.getInstance().getMissLastHook());
 
 				FlashLightSensorListener.getInstance().setLastHookTime(c);
 			}

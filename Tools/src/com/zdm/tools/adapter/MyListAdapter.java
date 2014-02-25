@@ -22,7 +22,7 @@ public class MyListAdapter extends BaseAdapter {
 
 	private LayoutInflater mInflater;
 	private int listLayout;
-	private Context mContext;
+//	private Context mContext;
 
 	public MyListAdapter(ArrayList<String[]> mData, Context mContext,
 			int listLayout) {
@@ -30,30 +30,30 @@ public class MyListAdapter extends BaseAdapter {
 		this.mData = mData;
 		mInflater = LayoutInflater.from(mContext);
 		this.listLayout = listLayout;
-		this.mContext = mContext;
+//		this.mContext = mContext;
 	}
 
 	@Override
 	public int getCount() {
-		Log.w("fl-MyListAdapter", "getCount");
+//		Log.w("fl-MyListAdapter", "getCount");
 		return mData.size();
 	}
 
 	@Override
 	public Object getItem(int arg0) {
-		Log.w("fl-MyListAdapter", "getItem");
+//		Log.w("fl-MyListAdapter", "getItem");
 		return null;
 	}
 
 	@Override
 	public long getItemId(int position) {
-		Log.w("fl-MyListAdapter", "getItemId");
+//		Log.w("fl-MyListAdapter", "getItemId");
 		return position;
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		Log.w("fl-MyListAdapter", "getView");
+		
 		ViewHolder holder = null;
 		if (convertView == null) {
 			holder = new ViewHolder();
@@ -75,9 +75,11 @@ public class MyListAdapter extends BaseAdapter {
 				CheckBox cb = (CheckBox) v;
 
 				if (cb.getId() == 0) {
+					Log.w("fl-MyListAdapter", "setPlayShake=="+cb.isChecked());
 					FlashLightSensorListener.getInstance().setPlayShake(
 							cb.isChecked());
 				} else if (cb.getId() == 1) {
+					Log.w("fl-MyListAdapter", "setPlayReg=="+cb.isChecked());
 					FlashLightSensorListener.getInstance().setPlayReg(
 							cb.isChecked());
 				}

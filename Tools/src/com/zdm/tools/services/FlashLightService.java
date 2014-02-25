@@ -4,13 +4,17 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
+import android.provider.Settings;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import com.zdm.tools.contentobserver.LastAlarmContentObserver;
 import com.zdm.tools.listener.phone.FlPhoneListener;
 import com.zdm.tools.listener.sensor.FlashLightSensorListener;
 import com.zdm.tools.receiver.FlashLightReceiver;
@@ -30,6 +34,8 @@ public class FlashLightService extends Service {
 
 	private FlPhoneListener flpl = new FlPhoneListener();
 	private TelephonyManager tm;
+	
+	private LastAlarmContentObserver laObser;
 
 	// 申请设备电源锁
 	private void acquireWakeLock() {
@@ -63,6 +69,7 @@ public class FlashLightService extends Service {
 		Log.w("fl-flSer", "create FlashLightService");
 
 		flsl.setmContext(this);
+		flsl.setLastHookTime(null);
 		// flsl.regFLListener();
 
 		IntentFilter filter = new IntentFilter();
@@ -75,6 +82,11 @@ public class FlashLightService extends Service {
 
 		tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 		tm.listen(flpl, PhoneStateListener.LISTEN_CALL_STATE);
+		
+		Uri uri = Settings.System
+				.getUriFor(Settings.System.NEXT_ALARM_FORMATTED);
+		laObser = new LastAlarmContentObserver(this, new Handler());
+		getContentResolver().registerContentObserver(uri, false, laObser);
 	}
 
 	@Override
@@ -83,6 +95,7 @@ public class FlashLightService extends Service {
 		unregisterReceiver(flReceiver);
 		flsl.setmContext(null);
 		tm.listen(flpl, PhoneStateListener.LISTEN_NONE);
+		getContentResolver().unregisterContentObserver(laObser);
 		Log.w("fl-flSer", "destroy FlashLightService");
 	}
 }

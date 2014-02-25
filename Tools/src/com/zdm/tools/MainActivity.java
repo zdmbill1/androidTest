@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -27,13 +26,11 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.CursorAdapter;
 import android.widget.ListView;
-import android.widget.NumberPicker;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.SimpleAdapter;
@@ -59,7 +56,7 @@ import com.zdm.tools.services.FlashLightService;
  * @author bill
  * 
  */
-@SuppressLint("NewApi")
+
 public class MainActivity extends Activity {
 
 	private Intent flIntent;
@@ -93,15 +90,9 @@ public class MainActivity extends Activity {
 			}
 		}
 
-		Calendar c = Calendar.getInstance();
-		c.add(Calendar.SECOND, -5);
-		flsl.setLastHookTime(c);
-
-		// Calendar c = Calendar.getInstance();
-		// c.add(Calendar.SECOND, -5);
-		// flsl.setLastHookTime(c);
-
 		flsl.setmContext(this);
+
+		flsl.setLastHookTime(null);
 		flsl.regFLListener();
 
 		flIntent = new Intent(this, FlashLightService.class);
@@ -175,7 +166,8 @@ public class MainActivity extends Activity {
 
 		flsl.setPlayShake(sp.getBoolean("playShake", true));
 		flsl.setPlayReg(sp.getBoolean("playReg", true));
-
+		
+		Log.w("fl-flAct", "oncreate playReg="+sp.getBoolean("playReg", true));
 		MyListAdapter mListAdapter = new MyListAdapter(mData, this,
 				R.layout.setlist);
 		setLv.setAdapter(mListAdapter);
@@ -239,22 +231,35 @@ public class MainActivity extends Activity {
 					break;
 				// 最后挂机无效时间 missLastHook
 				case 2:
-					NumberPicker np=new NumberPicker(getApplicationContext());
-					np.setMaxValue(100);
-					np.setMinValue(1);
-					np.setValue(flsl.getMissLastHook());
-					np.setWrapSelectorWheel(false);
+//					NumberPicker np = new NumberPicker(getApplicationContext());
+//					np.setMaxValue(100);
+//					np.setMinValue(1);
+//					np.setValue(flsl.getMissLastHook());
+//					np.setWrapSelectorWheel(false);
+//
+//					np.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+//
+//						@Override
+//						public void onValueChange(NumberPicker picker,
+//								int oldVal, int newVal) {
+//							missLastHook = newVal;
+//
+//						}
+//					});
 
-					np.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
-						
-						@Override
-						public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-							missLastHook=newVal;
-							
-						}
-					});
-					hookB.setView(np);
-					hookSetDialog=hookB.show();
+//					hookB.setView(np);
+//					hookSetDialog = hookB.show();
+					new NumberPickerDialog(MainActivity.this,
+							new NumberPickerDialog.OnNumberSetListener() {
+
+								@Override
+								public void onNumberSet(int currentInt) {
+									flsl.setMissLastHook(currentInt);
+									createAdvanceData();
+									advancedAdapter.notifyDataSetChanged();
+								}
+							}, flsl.getMissLastHook(), 1, 100, "最后挂机无效时间设置")
+							.show();
 					break;
 				default:
 					break;
@@ -274,7 +279,7 @@ public class MainActivity extends Activity {
 
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				
+				shakeSetDialog.dismiss();
 			}
 		});
 
@@ -285,6 +290,7 @@ public class MainActivity extends Activity {
 				flsl.setShakeSensitive(shakeSensitive + 1);
 				createAdvanceData();
 				advancedAdapter.notifyDataSetChanged();
+				shakeSetDialog.dismiss();
 			}
 		});
 		shakeB.setCancelable(false);
@@ -295,7 +301,7 @@ public class MainActivity extends Activity {
 
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				
+				clockSetDialog.dismiss();
 			}
 		});
 
@@ -306,31 +312,32 @@ public class MainActivity extends Activity {
 				flsl.setMissAlarmClock(missAlarmClock);
 				createAdvanceData();
 				advancedAdapter.notifyDataSetChanged();
+				clockSetDialog.dismiss();
 			}
 		});
 		clockB.setCancelable(false);
 		clockB.setTitle("闹钟无效时间设置");
-		
-		hookB = new Builder(this);
-		hookB.setNegativeButton("取消", new DialogInterface.OnClickListener() {
 
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				
-			}
-		});
-
-		hookB.setPositiveButton("设置", new DialogInterface.OnClickListener() {
-
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				flsl.setMissLastHook(missLastHook);
-				createAdvanceData();
-				advancedAdapter.notifyDataSetChanged();
-			}
-		});
-		hookB.setCancelable(false);
-		hookB.setTitle("最后挂机无效时间设置");
+//		hookB = new Builder(this);
+//		hookB.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+//
+//			@Override
+//			public void onClick(DialogInterface dialog, int which) {
+//
+//			}
+//		});
+//
+//		hookB.setPositiveButton("设置", new DialogInterface.OnClickListener() {
+//
+//			@Override
+//			public void onClick(DialogInterface dialog, int which) {
+//				flsl.setMissLastHook(missLastHook);
+//				createAdvanceData();
+//				advancedAdapter.notifyDataSetChanged();
+//			}
+//		});
+//		hookB.setCancelable(false);
+//		hookB.setTitle("最后挂机无效时间设置");
 	}
 
 	public int getCheckedId() {
@@ -404,16 +411,16 @@ public class MainActivity extends Activity {
 
 	private AlertDialog shakeSetDialog;
 	private AlertDialog clockSetDialog;
-	private AlertDialog hookSetDialog;
+//	private AlertDialog hookSetDialog;
 	private Builder shakeB;
 	private Builder clockB;
-	private Builder hookB;
+//	private Builder hookB;
 
 	private int shakeSensitive = 0;
 	private List<Map<String, String>> advanceData;
 
 	private int missAlarmClock = 0;
-	private int missLastHook=0;
+//	private int missLastHook = 0;
 
 	// // Called when a new Loader needs to be created
 	// public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -441,12 +448,12 @@ public class MainActivity extends Activity {
 	// Log.w("fl-flAct", "onLoaderReset");
 	// }
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
-	}
+//	@Override
+//	public boolean onCreateOptionsMenu(Menu menu) {
+//		// Inflate the menu; this adds items to the action bar if it is present.
+//		getMenuInflater().inflate(R.menu.main, menu);
+//		return true;
+//	}
 
 	// @Override
 	/*

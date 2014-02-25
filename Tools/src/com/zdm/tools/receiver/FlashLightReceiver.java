@@ -42,7 +42,7 @@ public class FlashLightReceiver extends BroadcastReceiver {
 			// 屏幕关闭时，状态不变，仅仅unreg
 			// flsl.unRegFLListenerOnly();
 			// startService(CloseIntent);
-			// TODO 新增判断是否按了menu键判断
+			// 新增判断是否按了menu键判断
 		} else if (Intent.ACTION_USER_PRESENT.equals(action)) {
 			Log.w("fl-broad", "ACTION_USER_PRESENT");
 			if (context.getClass().getName()

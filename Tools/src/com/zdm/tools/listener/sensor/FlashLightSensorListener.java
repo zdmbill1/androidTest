@@ -54,12 +54,12 @@ public class FlashLightSensorListener implements SensorEventListener {
 
 	private boolean playShake = true;
 	private boolean playReg = true;
-	
-	private int shakeSensitive=0;
-	
-	private int missAlarmClock=0;
-	private int missLastHook=0;
-	
+
+	private int shakeSensitive = 0;
+
+	private int missAlarmClock = 0;
+	private int missLastHook = 0;
+
 	private SharedPreferences sp;
 	private Editor editor;
 
@@ -70,8 +70,6 @@ public class FlashLightSensorListener implements SensorEventListener {
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {
-		// TODO 摇晃程度判断&摇晃程度设定
-
 		long currectTime = System.currentTimeMillis();
 
 		if (currectTime - lastTime > 100) {
@@ -82,7 +80,8 @@ public class FlashLightSensorListener implements SensorEventListener {
 			lastTime = currectTime;
 			oldSuma = suma;
 			// 建议speed在20以上，越小越灵敏
-			if (speed > 100 && (currectTime - shakeTime) > 1500) {
+			if (speed > (2.5 * shakeSensitive)
+					&& (currectTime - shakeTime) > 1500) {
 				shake();
 				shakeTime = currectTime;
 			}
@@ -117,7 +116,14 @@ public class FlashLightSensorListener implements SensorEventListener {
 				tb.setChecked(on);
 			}
 		} else {
-			Log.w("fl-flSListener", "最后挂机时间到现在小于5秒不shake");
+			Log.w("fl-flSListener",
+					"next cal = " + lastHookTime.get(Calendar.YEAR) + "-"
+							+ (lastHookTime.get(Calendar.MONTH) + 1) + "-"
+							+ lastHookTime.get(Calendar.DAY_OF_MONTH) + " "
+							+ lastHookTime.get(Calendar.HOUR_OF_DAY) + ":"
+							+ lastHookTime.get(Calendar.MINUTE) + ":"
+							+ lastHookTime.get(Calendar.SECOND));
+			Log.w("fl-flSListener", "最后挂机时间到现在小于" + missLastHook + "秒不shake");
 		}
 	}
 
@@ -130,7 +136,14 @@ public class FlashLightSensorListener implements SensorEventListener {
 			}
 			Log.w("fl-flSListener", "regFLListener");
 		} else {
-			Log.w("fl-flSListener", "最后挂机时间到现在小于5秒不reg");
+			Log.w("fl-flSListener",
+					"next cal = " + lastHookTime.get(Calendar.YEAR) + "-"
+							+ (lastHookTime.get(Calendar.MONTH) + 1) + "-"
+							+ lastHookTime.get(Calendar.DAY_OF_MONTH) + " "
+							+ lastHookTime.get(Calendar.HOUR_OF_DAY) + ":"
+							+ lastHookTime.get(Calendar.MINUTE) + ":"
+							+ lastHookTime.get(Calendar.SECOND));
+			Log.w("fl-flSListener", "最后挂机时间到现在小于" + missLastHook + "秒不reg");
 		}
 	}
 
@@ -147,7 +160,7 @@ public class FlashLightSensorListener implements SensorEventListener {
 		} else {
 			Calendar cal = nextAlarmClocks.get(0);
 			if (nowCal.getTimeInMillis() > cal.getTimeInMillis()
-					&& nowCal.getTimeInMillis() - cal.getTimeInMillis() < 30 * 1000) {
+					&& nowCal.getTimeInMillis() - cal.getTimeInMillis() < missAlarmClock * 1000) {
 				Log.w("fl-flSListener", "checkClockRing=true");
 				return true;
 			} else {
@@ -158,7 +171,7 @@ public class FlashLightSensorListener implements SensorEventListener {
 	}
 
 	/**
-	 * 检测当前时间到最后挂电话时间是否小于5秒
+	 * 检测当前时间到最后挂电话时间是否小于missLastHook秒
 	 * 
 	 * @return true:大于 false:小于
 	 */
@@ -166,8 +179,25 @@ public class FlashLightSensorListener implements SensorEventListener {
 		if (lastHookTime == null) {
 			return true;
 		}
-		return Calendar.getInstance().getTimeInMillis()
-				- lastHookTime.getTimeInMillis() > 5000;
+		Calendar cal=Calendar.getInstance();
+		long diff=cal.getTimeInMillis()-lastHookTime.getTimeInMillis();
+
+		String tmp=cal.get(Calendar.YEAR) + "-"
+				+ (cal.get(Calendar.MONTH) + 1) + "-"
+				+ cal.get(Calendar.DAY_OF_MONTH) + " "
+				+ cal.get(Calendar.HOUR_OF_DAY) + ":"
+				+ cal.get(Calendar.MINUTE) + ":"
+				+ cal.get(Calendar.SECOND);
+		Log.w("fl-flSListener", "checkLastHookTime diff="+diff+" now="+tmp);
+		Log.w("fl-flSListener",
+				"checkLastHookTime next cal = " + lastHookTime.get(Calendar.YEAR) + "-"
+						+ (lastHookTime.get(Calendar.MONTH) + 1) + "-"
+						+ lastHookTime.get(Calendar.DAY_OF_MONTH) + " "
+						+ lastHookTime.get(Calendar.HOUR_OF_DAY) + ":"
+						+ lastHookTime.get(Calendar.MINUTE) + ":"
+						+ lastHookTime.get(Calendar.SECOND));
+		
+		return diff > missLastHook * 1000;
 	}
 
 	public void unRegFLListener() {
@@ -281,8 +311,6 @@ public class FlashLightSensorListener implements SensorEventListener {
 		editor.putBoolean("playReg", playReg);
 		editor.commit();
 	}
-	
-	
 
 	public boolean isPlayShake() {
 		return playShake;
@@ -311,26 +339,24 @@ public class FlashLightSensorListener implements SensorEventListener {
 	}
 
 	public int getShakeSensitive() {
-		if(shakeSensitive==0){
-			shakeSensitive=sp.getInt("shakeSensitive", 30);
+		if (shakeSensitive == 0) {
+			shakeSensitive = sp.getInt("shakeSensitive", 40);
 		}
 		return shakeSensitive;
 	}
 
 	public int getMissAlarmClock() {
-		if(missAlarmClock==0){
-			missAlarmClock=sp.getInt("missAlarmClock", 30);
+		if (missAlarmClock == 0) {
+			missAlarmClock = sp.getInt("missAlarmClock", 30);
 		}
 		return missAlarmClock;
 	}
 
 	public int getMissLastHook() {
-		if(missLastHook==0){
-			missLastHook=sp.getInt("missLastHook", 10);
+		if (missLastHook == 0) {
+			missLastHook = sp.getInt("missLastHook", 10);
 		}
 		return missLastHook;
 	}
 
-	
-	
 }
