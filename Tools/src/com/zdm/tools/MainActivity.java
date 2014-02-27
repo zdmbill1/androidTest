@@ -20,6 +20,7 @@ import android.provider.Settings;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -116,8 +117,6 @@ public class MainActivity extends Activity {
 				.getUriFor(Settings.System.NEXT_ALARM_FORMATTED);
 		laObser = new LastAlarmContentObserver(this, new Handler());
 		getContentResolver().registerContentObserver(uri, false, laObser);
-
-		flsl.setPressMenuFlag(false);
 
 		setLv = (ListView) findViewById(R.id.setLv);
 		List<String> data = new ArrayList<String>();
@@ -444,25 +443,11 @@ public class MainActivity extends Activity {
 	// return true;
 	// }
 
-	// @Override
-	/*
-	 * public boolean onKeyDown(int keyCode, KeyEvent event) { if (keyCode ==
-	 * KeyEvent.KEYCODE_BACK) { Log.w("fl-flAct", "press back"); if (!on) {
-	 * flsl.unRegFLListener(); } // moveTaskToBack(true); // return true; }
-	 * return super.onKeyDown(keyCode, event); }
-	 */
-
-	@Override
-	public void onAttachedToWindow() {
-		super.onAttachedToWindow();
-		flsl.setPressMenuFlag(true);
-		Log.w("fl-flAct", "press menu");
-	}
-
 	@Override
 	protected void onPause() {
 		super.onPause();
 		Log.w("fl-flAct", "pause unreg");
+		flsl.setPressHomeFlag(true);
 		flsl.unRegFLListenerOnly();
 	}
 
@@ -474,7 +459,7 @@ public class MainActivity extends Activity {
 			Log.w("fl-flAct", "resume reg");
 			flsl.regFLListener();
 		}
-		flsl.setPressMenuFlag(false);
+		flsl.setPressHomeFlag(false);
 
 	}
 
@@ -489,6 +474,8 @@ public class MainActivity extends Activity {
 		startService(flIntent);
 
 		getContentResolver().unregisterContentObserver(laObser);
+		flsl.setPressHomeFlag(false);
+		
 		super.onDestroy();
 
 		// System.exit(0);

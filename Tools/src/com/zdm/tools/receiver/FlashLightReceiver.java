@@ -46,7 +46,7 @@ public class FlashLightReceiver extends BroadcastReceiver {
 			Log.w("fl-broad", "ACTION_USER_PRESENT");
 			if (context.getClass().getName()
 					.equals(FlashLightService.class.getName())
-					|| flsl.isPressMenuFlag()) {
+					|| flsl.isPressHomeFlag()) {
 				flsl.unRegFLListener();
 			}
 		}

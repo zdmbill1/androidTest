@@ -49,7 +49,7 @@ public class FlashLightSensorListener implements SensorEventListener {
 	// 只保持1/2个时间，一个是正在闹的时间，一个是最近的闹钟时间
 	private List<Calendar> nextAlarmClocks = new ArrayList<Calendar>();
 
-	private boolean pressMenuFlag = false;
+	private boolean pressHomeFlag = false;
 
 	private boolean playShake = true;
 	private boolean playReg = false;
@@ -81,8 +81,8 @@ public class FlashLightSensorListener implements SensorEventListener {
 			// 建议speed在20以上，越小越灵敏
 			if (speed > (2.5 * shakeSensitive)
 					&& (currectTime - shakeTime) > 1500) {
-//				Log.w("fl-flSListener", "shakeSensitive=" + shakeSensitive
-//						+ " xml " + sp.getInt("shakeSensitive", 40));
+				// Log.w("fl-flSListener", "shakeSensitive=" + shakeSensitive
+				// + " xml " + sp.getInt("shakeSensitive", 40));
 				shake();
 				shakeTime = currectTime;
 			}
@@ -99,7 +99,7 @@ public class FlashLightSensorListener implements SensorEventListener {
 		}
 	}
 
-	//通过按钮点击，无需声音和无效时间判断
+	// 通过按钮点击，无需声音和无效时间判断
 	public void clickShake() {
 		on = !on;
 		operateCamera(on);
@@ -128,9 +128,9 @@ public class FlashLightSensorListener implements SensorEventListener {
 			sManager.registerListener(instance, sShake,
 					SensorManager.SENSOR_DELAY_UI);
 			if (playReg) {
-//				if (sp.getBoolean("playReg", false) != playReg) {
-//					Log.e("fl-flSListener", "playReg not equal");
-//				}
+				// if (sp.getBoolean("playReg", false) != playReg) {
+				// Log.e("fl-flSListener", "playReg not equal");
+				// }
 				BackAudioPlay.getInstance().playBackAudio("beep");
 			}
 			Log.w("fl-flSListener", "regFLListener");
@@ -243,13 +243,14 @@ public class FlashLightSensorListener implements SensorEventListener {
 			sShake = sManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 			sp = mContext.getSharedPreferences("SP", Context.MODE_PRIVATE);
 			editor = sp.edit();
-			
+
 			playShake = sp.getBoolean("playShake", true);
 			playReg = sp.getBoolean("playReg", false);
 			shakeSensitive = sp.getInt("shakeSensitive", 40);
 			missAlarmClock = sp.getInt("missAlarmClock", 30);
 			missLastHook = sp.getInt("missLastHook", 10);
-			Log.w("fl-flSListener", "set mContext="+mContext.getClass().getName()+" playReg=" + playReg);
+			Log.w("fl-flSListener", "set mContext="
+					+ mContext.getClass().getName() + " playReg=" + playReg);
 		}
 	}
 
@@ -326,12 +327,13 @@ public class FlashLightSensorListener implements SensorEventListener {
 		}
 	}
 
-	public boolean isPressMenuFlag() {
-		return pressMenuFlag;
+	public boolean isPressHomeFlag() {
+		return pressHomeFlag;
 	}
 
-	public void setPressMenuFlag(boolean pressMenuFlag) {
-		this.pressMenuFlag = pressMenuFlag;
+	public void setPressHomeFlag(boolean pressHomeFlag) {
+		this.pressHomeFlag = pressHomeFlag;
+		Log.w("fl-flSListener", "set pressHomeFlag=" + pressHomeFlag);
 	}
 
 	public void setPlayShake(boolean playShake) {
