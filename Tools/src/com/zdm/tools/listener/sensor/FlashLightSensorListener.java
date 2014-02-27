@@ -104,6 +104,7 @@ public class FlashLightSensorListener implements SensorEventListener {
 		on = !on;
 		operateCamera(on);
 		Activity a = (Activity) mContext;
+		Log.w("fl-flSListener", mContext.getClass().getName());
 		ToggleButton tb = (ToggleButton) a.findViewById(R.id.toggleButton1);
 		tb.setChecked(on);
 	}

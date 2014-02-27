@@ -93,7 +93,6 @@ public class FlashLightService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		unregisterReceiver(flReceiver);
-		flsl.setmContext(null);
 		tm.listen(flpl, PhoneStateListener.LISTEN_NONE);
 		getContentResolver().unregisterContentObserver(laObser);
 		Log.w("fl-flSer", "destroy FlashLightService");
