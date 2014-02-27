@@ -1,7 +1,6 @@
 package com.zdm.tools;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,27 +13,22 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.Settings;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.SimpleAdapter;
-import android.widget.SimpleCursorAdapter;
 import android.widget.ToggleButton;
 
 import com.zdm.tools.adapter.MyListAdapter;
@@ -93,7 +87,6 @@ public class MainActivity extends Activity {
 		flsl.setmContext(this);
 
 		flsl.setLastHookTime(null);
-		flsl.regFLListener();
 
 		flIntent = new Intent(this, FlashLightService.class);
 
@@ -111,21 +104,11 @@ public class MainActivity extends Activity {
 
 			@Override
 			public void onClick(View arg0) {
-				flsl.shake();
+				flsl.clickShake();
 			}
 		});
 
-		// powerTbt.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-		//
-		// @Override
-		// public void onCheckedChanged(CompoundButton arg0, boolean isChecked)
-		// {
-		//
-		// }
-		// });
-
 		tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-
 		tm.listen(flpl, PhoneStateListener.LISTEN_CALL_STATE);
 
 		// 获取最近的alarm的信息
@@ -147,13 +130,14 @@ public class MainActivity extends Activity {
 				R.layout.setlist, data);
 		setLv.setAdapter(aAdapter);
 
-		Cursor cur = getContentResolver().query(Phone.CONTENT_URI, null, null,
-				null, Phone.DISPLAY_NAME);
-
-		scAdapter = new SimpleCursorAdapter(this, R.layout.setlist, cur,
-				new String[] { Phone.DISPLAY_NAME, Phone.NUMBER }, new int[] {
-						R.id.textView1, R.id.checkBox1 },
-				CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+		// Cursor cur = getContentResolver().query(Phone.CONTENT_URI, null,
+		// null,
+		// null, Phone.DISPLAY_NAME);
+		//
+		// scAdapter = new SimpleCursorAdapter(this, R.layout.setlist, cur,
+		// new String[] { Phone.DISPLAY_NAME, Phone.NUMBER }, new int[] {
+		// R.id.textView1, R.id.checkBox1 },
+		// CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
 		// setLv.setAdapter(scAdapter);
 
 		sp = getSharedPreferences("SP", Context.MODE_PRIVATE);
@@ -162,12 +146,12 @@ public class MainActivity extends Activity {
 		mData.add(new String[] { "摇晃声音",
 				String.valueOf(sp.getBoolean("playShake", true)) });
 		mData.add(new String[] { "锁屏/解锁声音",
-				String.valueOf(sp.getBoolean("playReg", true)) });
+				String.valueOf(sp.getBoolean("playReg", false)) });
 
 		flsl.setPlayShake(sp.getBoolean("playShake", true));
-		flsl.setPlayReg(sp.getBoolean("playReg", true));
-		
-		Log.w("fl-flAct", "oncreate playReg="+sp.getBoolean("playReg", true));
+		flsl.setPlayReg(sp.getBoolean("playReg", false));
+
+		Log.w("fl-flAct", "oncreate playReg=" + flsl.isPlayReg());
 		MyListAdapter mListAdapter = new MyListAdapter(mData, this,
 				R.layout.setlist);
 		setLv.setAdapter(mListAdapter);
@@ -231,24 +215,26 @@ public class MainActivity extends Activity {
 					break;
 				// 最后挂机无效时间 missLastHook
 				case 2:
-//					NumberPicker np = new NumberPicker(getApplicationContext());
-//					np.setMaxValue(100);
-//					np.setMinValue(1);
-//					np.setValue(flsl.getMissLastHook());
-//					np.setWrapSelectorWheel(false);
-//
-//					np.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
-//
-//						@Override
-//						public void onValueChange(NumberPicker picker,
-//								int oldVal, int newVal) {
-//							missLastHook = newVal;
-//
-//						}
-//					});
+					// NumberPicker np = new
+					// NumberPicker(getApplicationContext());
+					// np.setMaxValue(100);
+					// np.setMinValue(1);
+					// np.setValue(flsl.getMissLastHook());
+					// np.setWrapSelectorWheel(false);
+					//
+					// np.setOnValueChangedListener(new
+					// NumberPicker.OnValueChangeListener() {
+					//
+					// @Override
+					// public void onValueChange(NumberPicker picker,
+					// int oldVal, int newVal) {
+					// missLastHook = newVal;
+					//
+					// }
+					// });
 
-//					hookB.setView(np);
-//					hookSetDialog = hookB.show();
+					// hookB.setView(np);
+					// hookSetDialog = hookB.show();
 					new NumberPickerDialog(MainActivity.this,
 							new NumberPickerDialog.OnNumberSetListener() {
 
@@ -318,26 +304,28 @@ public class MainActivity extends Activity {
 		clockB.setCancelable(false);
 		clockB.setTitle("闹钟无效时间设置");
 
-//		hookB = new Builder(this);
-//		hookB.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-//
-//			@Override
-//			public void onClick(DialogInterface dialog, int which) {
-//
-//			}
-//		});
-//
-//		hookB.setPositiveButton("设置", new DialogInterface.OnClickListener() {
-//
-//			@Override
-//			public void onClick(DialogInterface dialog, int which) {
-//				flsl.setMissLastHook(missLastHook);
-//				createAdvanceData();
-//				advancedAdapter.notifyDataSetChanged();
-//			}
-//		});
-//		hookB.setCancelable(false);
-//		hookB.setTitle("最后挂机无效时间设置");
+		// hookB = new Builder(this);
+		// hookB.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(DialogInterface dialog, int which) {
+		//
+		// }
+		// });
+		//
+		// hookB.setPositiveButton("设置", new DialogInterface.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(DialogInterface dialog, int which) {
+		// flsl.setMissLastHook(missLastHook);
+		// createAdvanceData();
+		// advancedAdapter.notifyDataSetChanged();
+		// }
+		// });
+		// hookB.setCancelable(false);
+		// hookB.setTitle("最后挂机无效时间设置");
+
+		flsl.regFLListener();
 	}
 
 	public int getCheckedId() {
@@ -407,20 +395,21 @@ public class MainActivity extends Activity {
 		return shakeSeekBar;
 	}
 
-	private SimpleCursorAdapter scAdapter;
+	// private SimpleCursorAdapter scAdapter;
 
 	private AlertDialog shakeSetDialog;
 	private AlertDialog clockSetDialog;
-//	private AlertDialog hookSetDialog;
+	// private AlertDialog hookSetDialog;
 	private Builder shakeB;
 	private Builder clockB;
-//	private Builder hookB;
+	// private Builder hookB;
 
 	private int shakeSensitive = 0;
 	private List<Map<String, String>> advanceData;
 
 	private int missAlarmClock = 0;
-//	private int missLastHook = 0;
+
+	// private int missLastHook = 0;
 
 	// // Called when a new Loader needs to be created
 	// public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -448,12 +437,12 @@ public class MainActivity extends Activity {
 	// Log.w("fl-flAct", "onLoaderReset");
 	// }
 
-//	@Override
-//	public boolean onCreateOptionsMenu(Menu menu) {
-//		// Inflate the menu; this adds items to the action bar if it is present.
-//		getMenuInflater().inflate(R.menu.main, menu);
-//		return true;
-//	}
+	// @Override
+	// public boolean onCreateOptionsMenu(Menu menu) {
+	// // Inflate the menu; this adds items to the action bar if it is present.
+	// getMenuInflater().inflate(R.menu.main, menu);
+	// return true;
+	// }
 
 	// @Override
 	/*

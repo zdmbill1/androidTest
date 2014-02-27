@@ -35,8 +35,13 @@ public class LastAlarmContentObserver extends ContentObserver {
 		super(handler);
 		this.mCtx = mCtx;
 		this.mHandler = handler;
+		
+		if(FlashLightSensorListener.getInstance().getNextAlarmClocks().size()==0){
+			onChange(true);
+		}
 	}
 
+	
 	@Override
 	public void onChange(boolean selfChange) {
 		super.onChange(selfChange);
@@ -63,7 +68,8 @@ public class LastAlarmContentObserver extends ContentObserver {
 										+ (cal.get(Calendar.MONTH) + 1) + "-"
 										+ cal.get(Calendar.DAY_OF_MONTH) + " "
 										+ cal.get(Calendar.HOUR_OF_DAY) + ":"
-										+ cal.get(Calendar.MINUTE));
+										+ cal.get(Calendar.MINUTE)+ ":"
+										+ cal.get(Calendar.SECOND));
 						FlashLightSensorListener.getInstance()
 								.addNextAlarmClock(cal);
 						// mHandler.obtainMessage(1,

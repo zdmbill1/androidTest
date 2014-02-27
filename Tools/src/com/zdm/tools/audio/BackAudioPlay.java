@@ -31,7 +31,7 @@ public class BackAudioPlay {
 	}
 
 	public void playBackAudio(String audioId) {
-		Log.w("fl-audioPlay", "play "+audioId);
+		Log.e("fl-audioPlay", "play "+audioId);
 		sp.play(spMap.get(audioId), 1, 1, 1, 0, 1);
 	}
 

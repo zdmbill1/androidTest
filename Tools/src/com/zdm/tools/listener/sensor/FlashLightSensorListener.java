@@ -17,7 +17,6 @@ import android.hardware.SensorManager;
 import android.util.Log;
 import android.widget.ToggleButton;
 
-import com.zdm.tools.MainActivity;
 import com.zdm.tools.R;
 import com.zdm.tools.audio.BackAudioPlay;
 
@@ -26,7 +25,7 @@ public class FlashLightSensorListener implements SensorEventListener {
 	private static FlashLightSensorListener instance = new FlashLightSensorListener();
 
 	private FlashLightSensorListener() {
-
+		Log.e("fl-flSListener", "FlashLightSensorListener init");
 	}
 
 	public static FlashLightSensorListener getInstance() {
@@ -53,7 +52,7 @@ public class FlashLightSensorListener implements SensorEventListener {
 	private boolean pressMenuFlag = false;
 
 	private boolean playShake = true;
-	private boolean playReg = true;
+	private boolean playReg = false;
 
 	private int shakeSensitive = 0;
 
@@ -65,7 +64,7 @@ public class FlashLightSensorListener implements SensorEventListener {
 
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
-		Log.e("fl-flSListener", "not implemmented");
+		Log.i("fl-flSListener", "not implemmented");
 	}
 
 	@Override
@@ -82,6 +81,8 @@ public class FlashLightSensorListener implements SensorEventListener {
 			// 建议speed在20以上，越小越灵敏
 			if (speed > (2.5 * shakeSensitive)
 					&& (currectTime - shakeTime) > 1500) {
+//				Log.w("fl-flSListener", "shakeSensitive=" + shakeSensitive
+//						+ " xml " + sp.getInt("shakeSensitive", 40));
 				shake();
 				shakeTime = currectTime;
 			}
@@ -94,44 +95,42 @@ public class FlashLightSensorListener implements SensorEventListener {
 			if (playShake) {
 				BackAudioPlay.getInstance().playBackAudio("shake");
 			}
-			if (on) {
-				Log.w("fl-flSListener", "打开手电筒");
-				camera = Camera.open();
-				Parameters params = camera.getParameters();
-				params.setFlashMode(Parameters.FLASH_MODE_TORCH);
-				camera.setParameters(params);
-				camera.startPreview(); // 开始亮灯
-			} else {
-				Log.w("fl-flSListener", "关闭手电筒");
-				camera.stopPreview(); // 关掉亮灯
-				camera.release(); // 关掉照相机
-			}
+			operateCamera(on);
+		}
+	}
 
-			if (null != mContext
-					&& mContext.getClass().getName()
-							.equals(MainActivity.class.getName())) {
-				Activity a = (Activity) mContext;
-				ToggleButton tb = (ToggleButton) a
-						.findViewById(R.id.toggleButton1);
-				tb.setChecked(on);
-			}
+	//通过按钮点击，无需声音和无效时间判断
+	public void clickShake() {
+		on = !on;
+		operateCamera(on);
+		Activity a = (Activity) mContext;
+		ToggleButton tb = (ToggleButton) a.findViewById(R.id.toggleButton1);
+		tb.setChecked(on);
+	}
+
+	public void operateCamera(boolean on) {
+		if (on) {
+			Log.w("fl-flSListener", "打开手电筒");
+			camera = Camera.open();
+			Parameters params = camera.getParameters();
+			params.setFlashMode(Parameters.FLASH_MODE_TORCH);
+			camera.setParameters(params);
+			camera.startPreview(); // 开始亮灯
 		} else {
-			Log.w("fl-flSListener",
-					"next cal = " + lastHookTime.get(Calendar.YEAR) + "-"
-							+ (lastHookTime.get(Calendar.MONTH) + 1) + "-"
-							+ lastHookTime.get(Calendar.DAY_OF_MONTH) + " "
-							+ lastHookTime.get(Calendar.HOUR_OF_DAY) + ":"
-							+ lastHookTime.get(Calendar.MINUTE) + ":"
-							+ lastHookTime.get(Calendar.SECOND));
-			Log.w("fl-flSListener", "最后挂机时间到现在小于" + missLastHook + "秒不shake");
+			Log.w("fl-flSListener", "关闭手电筒");
+			camera.stopPreview(); // 关掉亮灯
+			camera.release(); // 关掉照相机
 		}
 	}
 
 	public void regFLListener() {
 		if (checkLastHookTime()) {
-			sManager.registerListener(this, sShake,
+			sManager.registerListener(instance, sShake,
 					SensorManager.SENSOR_DELAY_UI);
 			if (playReg) {
+//				if (sp.getBoolean("playReg", false) != playReg) {
+//					Log.e("fl-flSListener", "playReg not equal");
+//				}
 				BackAudioPlay.getInstance().playBackAudio("beep");
 			}
 			Log.w("fl-flSListener", "regFLListener");
@@ -148,7 +147,7 @@ public class FlashLightSensorListener implements SensorEventListener {
 	}
 
 	/**
-	 * 通过判断最近的alarm clock 时间来判断闹钟是否在响 暂定30秒内都表示再闹
+	 * 通过判断最近的alarm clock 时间来判断闹钟是否在响 暂定missAlarmClock秒内都表示再闹
 	 * 
 	 * @return true:闹钟在响
 	 */
@@ -159,6 +158,12 @@ public class FlashLightSensorListener implements SensorEventListener {
 			return false;
 		} else {
 			Calendar cal = nextAlarmClocks.get(0);
+			String tmp = cal.get(Calendar.YEAR) + "-"
+					+ (cal.get(Calendar.MONTH) + 1) + "-"
+					+ cal.get(Calendar.DAY_OF_MONTH) + " "
+					+ cal.get(Calendar.HOUR_OF_DAY) + ":"
+					+ cal.get(Calendar.MINUTE) + ":" + cal.get(Calendar.SECOND);
+			Log.w("fl-flSListener", "checkClockRing cal=" + tmp);
 			if (nowCal.getTimeInMillis() > cal.getTimeInMillis()
 					&& nowCal.getTimeInMillis() - cal.getTimeInMillis() < missAlarmClock * 1000) {
 				Log.w("fl-flSListener", "checkClockRing=true");
@@ -179,24 +184,25 @@ public class FlashLightSensorListener implements SensorEventListener {
 		if (lastHookTime == null) {
 			return true;
 		}
-		Calendar cal=Calendar.getInstance();
-		long diff=cal.getTimeInMillis()-lastHookTime.getTimeInMillis();
+		Calendar cal = Calendar.getInstance();
+		long diff = cal.getTimeInMillis() - lastHookTime.getTimeInMillis();
 
-		String tmp=cal.get(Calendar.YEAR) + "-"
+		String tmp = cal.get(Calendar.YEAR) + "-"
 				+ (cal.get(Calendar.MONTH) + 1) + "-"
 				+ cal.get(Calendar.DAY_OF_MONTH) + " "
 				+ cal.get(Calendar.HOUR_OF_DAY) + ":"
-				+ cal.get(Calendar.MINUTE) + ":"
-				+ cal.get(Calendar.SECOND);
-		Log.w("fl-flSListener", "checkLastHookTime diff="+diff+" now="+tmp);
-		Log.w("fl-flSListener",
-				"checkLastHookTime next cal = " + lastHookTime.get(Calendar.YEAR) + "-"
-						+ (lastHookTime.get(Calendar.MONTH) + 1) + "-"
-						+ lastHookTime.get(Calendar.DAY_OF_MONTH) + " "
-						+ lastHookTime.get(Calendar.HOUR_OF_DAY) + ":"
-						+ lastHookTime.get(Calendar.MINUTE) + ":"
-						+ lastHookTime.get(Calendar.SECOND));
-		
+				+ cal.get(Calendar.MINUTE) + ":" + cal.get(Calendar.SECOND);
+		Log.w("fl-flSListener", "checkLastHookTime diff=" + diff + " now="
+				+ tmp);
+		// Log.w("fl-flSListener",
+		// "checkLastHookTime next cal = " + lastHookTime.get(Calendar.YEAR) +
+		// "-"
+		// + (lastHookTime.get(Calendar.MONTH) + 1) + "-"
+		// + lastHookTime.get(Calendar.DAY_OF_MONTH) + " "
+		// + lastHookTime.get(Calendar.HOUR_OF_DAY) + ":"
+		// + lastHookTime.get(Calendar.MINUTE) + ":"
+		// + lastHookTime.get(Calendar.SECOND));
+
 		return diff > missLastHook * 1000;
 	}
 
@@ -207,7 +213,7 @@ public class FlashLightSensorListener implements SensorEventListener {
 			on = false;
 		}
 
-		sManager.unregisterListener(this);
+		sManager.unregisterListener(instance);
 		if (playReg) {
 			BackAudioPlay.getInstance().playBackAudio("beep");
 		}
@@ -218,7 +224,7 @@ public class FlashLightSensorListener implements SensorEventListener {
 	 * 例如当灯打开，屏幕关闭时
 	 */
 	public void unRegFLListenerOnly() {
-		sManager.unregisterListener(this);
+		sManager.unregisterListener(instance);
 		if (playReg) {
 			BackAudioPlay.getInstance().playBackAudio("beep");
 		}
@@ -237,6 +243,13 @@ public class FlashLightSensorListener implements SensorEventListener {
 			sShake = sManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 			sp = mContext.getSharedPreferences("SP", Context.MODE_PRIVATE);
 			editor = sp.edit();
+			
+			playShake = sp.getBoolean("playShake", true);
+			playReg = sp.getBoolean("playReg", false);
+			shakeSensitive = sp.getInt("shakeSensitive", 40);
+			missAlarmClock = sp.getInt("missAlarmClock", 30);
+			missLastHook = sp.getInt("missLastHook", 10);
+			Log.w("fl-flSListener", "set mContext="+mContext.getClass().getName()+" playReg=" + playReg);
 		}
 	}
 
@@ -276,15 +289,36 @@ public class FlashLightSensorListener implements SensorEventListener {
 
 	public void addNextAlarmClock(Calendar cal) {
 		Calendar nowCal = Calendar.getInstance();
+		String tmp = "";
+		if (nextAlarmClocks.size() > 0) {
+			tmp = nextAlarmClocks.get(0).get(Calendar.YEAR) + "-"
+					+ (nextAlarmClocks.get(0).get(Calendar.MONTH) + 1) + "-"
+					+ nextAlarmClocks.get(0).get(Calendar.DAY_OF_MONTH) + " "
+					+ nextAlarmClocks.get(0).get(Calendar.HOUR_OF_DAY) + ":"
+					+ nextAlarmClocks.get(0).get(Calendar.MINUTE) + ":"
+					+ nextAlarmClocks.get(0).get(Calendar.SECOND);
+			Log.w("fl-flSListener", "start" + nextAlarmClocks.size()
+					+ "addNextAlarmClock[0]=" + tmp);
+		}
 		if (!nextAlarmClocks.contains(cal)) {
 			for (Calendar c : nextAlarmClocks) {
-				if (nowCal.getTimeInMillis() > c.getTimeInMillis()
-						&& nowCal.getTimeInMillis() - c.getTimeInMillis() < 5 * 1000) {
+				if (nowCal.getTimeInMillis() >= c.getTimeInMillis()
+						&& nowCal.getTimeInMillis() - c.getTimeInMillis() < missAlarmClock * 1000) {
 					nextAlarmClocks.clear();
 					nextAlarmClocks.add(c);
 					nextAlarmClocks.add(cal);
 
-					break;
+					tmp = nextAlarmClocks.get(0).get(Calendar.YEAR) + "-"
+							+ (nextAlarmClocks.get(0).get(Calendar.MONTH) + 1)
+							+ "-"
+							+ nextAlarmClocks.get(0).get(Calendar.DAY_OF_MONTH)
+							+ " "
+							+ nextAlarmClocks.get(0).get(Calendar.HOUR_OF_DAY)
+							+ ":" + nextAlarmClocks.get(0).get(Calendar.MINUTE)
+							+ ":" + nextAlarmClocks.get(0).get(Calendar.SECOND);
+					Log.w("fl-flSListener", nextAlarmClocks.size()
+							+ "addNextAlarmClock[0]=" + tmp);
+					return;
 				}
 			}
 			nextAlarmClocks.clear();

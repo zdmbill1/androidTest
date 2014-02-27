@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import com.zdm.tools.MainActivity;
 import com.zdm.tools.listener.sensor.FlashLightSensorListener;
 import com.zdm.tools.services.FlashLightService;
 
