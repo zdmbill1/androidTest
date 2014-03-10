@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Paint.Style;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
@@ -44,6 +45,8 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
 	private int runlenturn = 0;
 	private boolean DIR_RIGHT = true;
 
+	private float touchX, touchY;
+
 	public MySurfaceView(Context context) {
 		super(context);
 
@@ -69,6 +72,7 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
 		try {
 			canvas = sh.lockCanvas();
 			canvas.drawColor(Color.WHITE);
+			paint.setColor(Color.BLACK);
 			// canvas.drawText("surface view", x, y, paint);
 			// canvas.drawText("surface view", x1, y1, paint);
 			// canvas.drawText("surface view", x2, y2, paint);
@@ -169,6 +173,22 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
 					/ 6, fy - currectRobot / 6 * robot.getHeight() / 2, paint);
 			canvas.restore();
 
+			drawCircle(
+					touchX,
+					touchY,
+					isCollisionWithCircle(touchX, touchY, 30, screenx / 2 - 50,
+							screeny / 2 - 50, 20));
+
+			int w=screenx/3;
+			int h=screeny/3;
+			paint.setStyle(Style.STROKE);
+			for(int i=0;i<3;i++){
+				for(int j=0;j<3;j++){
+					canvas.drawRect(w*i, j*h, w*(i+1),h*(j+1), paint);
+				}
+			}
+			
+			
 		} catch (Exception e) {
 		} finally {
 			if (canvas != null) {
@@ -178,10 +198,45 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
 
 	}
 
+	public void drawCircle(float cx, float cy, boolean flag) {
+		// try {
+		// canvas = sh.lockCanvas();
+		if (flag) {
+			paint.setColor(Color.RED);
+		} else {
+			paint.setColor(Color.BLACK);
+		}
+		if (cx != 0 || cy != 0) {
+			canvas.drawCircle(cx, cy, 30, paint);
+		}
+		canvas.drawCircle(screenx / 2 - 50, screeny / 2 - 50, 20, paint);
+
+		// } catch (Exception e) {
+		// } finally {
+		// if (canvas != null) {
+		// sh.unlockCanvasAndPost(canvas);
+		// }
+		// }
+
+	}
+
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		// myDraw();
+
+		touchX = event.getX();
+		touchY = event.getY();
+
 		return true;
+	}
+
+	private boolean isCollisionWithCircle(float cx, float cy, float r,
+			float cx1, float cy1, float r1) {
+		// 圆心距小于2圆半径之和则发生碰撞
+		if (Math.sqrt(Math.pow(cx1 - cx, 2) + Math.pow(cy1 - cy, 2)) <= r + r1) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	@Override
