@@ -1,5 +1,9 @@
 package com.zdm.airplanshot.view;
 
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Random;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -51,6 +55,37 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 	private GameBackGround gameBg;
 	private Player player;
 
+	public final int ENEMY_DUCK = 0;
+	public final int ENEMY_FLY = 1;
+
+	private boolean isBoss = false;
+
+	private int enemyArray[][] = {
+			{ ENEMY_DUCK, ENEMY_FLY, ENEMY_FLY, ENEMY_FLY, ENEMY_DUCK,
+					ENEMY_DUCK },
+			{ ENEMY_DUCK, ENEMY_FLY, ENEMY_DUCK, ENEMY_DUCK },
+			{ ENEMY_DUCK, ENEMY_DUCK, ENEMY_FLY, ENEMY_FLY, ENEMY_DUCK },
+			{ ENEMY_FLY, ENEMY_FLY, ENEMY_FLY, ENEMY_DUCK, ENEMY_DUCK,
+					ENEMY_DUCK },
+			{ ENEMY_DUCK, ENEMY_FLY, ENEMY_FLY, ENEMY_FLY, ENEMY_DUCK,
+					ENEMY_DUCK },
+			{ ENEMY_DUCK, ENEMY_DUCK, ENEMY_FLY, ENEMY_DUCK },
+			{ ENEMY_DUCK, ENEMY_DUCK, ENEMY_DUCK, ENEMY_FLY, ENEMY_FLY,
+					ENEMY_FLY, },
+			{ ENEMY_DUCK, ENEMY_DUCK, ENEMY_DUCK },
+			{ ENEMY_DUCK, ENEMY_DUCK, ENEMY_FLY, ENEMY_DUCK },
+			{ ENEMY_DUCK, ENEMY_FLY, ENEMY_DUCK, ENEMY_DUCK },
+			{ ENEMY_FLY, ENEMY_FLY, ENEMY_FLY, ENEMY_DUCK, ENEMY_DUCK,
+					ENEMY_DUCK, ENEMY_FLY, ENEMY_FLY, },
+			{ ENEMY_FLY, ENEMY_FLY, ENEMY_DUCK, ENEMY_DUCK, ENEMY_FLY,
+					ENEMY_FLY, ENEMY_FLY, ENEMY_DUCK, ENEMY_FLY, ENEMY_FLY,
+					ENEMY_FLY, ENEMY_FLY }, };
+	private HashSet<Enemy> enemys = new HashSet<Enemy>();
+
+	private int enemyArrayIndex = 0;
+	// 计数器，每次thread循环+1
+	private int count = 0;
+
 	public MySurfaceView(Context context) {
 		super(context);
 		sh = getHolder();
@@ -84,7 +119,9 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 		case GAME_MENU:
 			gameMenu.onTouchEvent(event);
 			break;
-
+		case GAME_PLAY:
+			player.onTouchEvent(event);
+			break;
 		default:
 			break;
 		}
@@ -134,6 +171,7 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 	public void run() {
 		while (flag) {
 			long start = System.currentTimeMillis();
+			count++;
 			myDraw();
 			logic();
 			long end = System.currentTimeMillis();
@@ -159,6 +197,9 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 			case GAME_PLAY:
 				gameBg.draw(canvas, paint);
 				player.draw(canvas, paint);
+				for (Enemy e : enemys) {
+					e.draw(canvas, paint);
+				}
 				break;
 			default:
 				break;
@@ -177,6 +218,42 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 		switch (gameState) {
 		case GAME_PLAY:
 			gameBg.logic();
+
+			Iterator<Enemy> it = enemys.iterator();
+			while (it.hasNext()) {
+				Enemy en = (Enemy) it.next();
+				if (en.isDead) {
+					it.remove();
+				} else {
+					en.logic();
+				}
+			}
+			// 每次刷新间隔时间=50*100ms
+			if (count % 100 == 0) {
+				for (int enemyType : enemyArray[enemyArrayIndex]) {
+					Random r = new Random();
+					switch (enemyType) {
+					case ENEMY_DUCK:
+
+						enemys.add(new EnemyDuck(bmpEnemyDuck, r
+								.nextInt(screenW), r.nextInt(50)));
+						break;
+					case ENEMY_FLY:
+						enemys.add(new EnemyFly(bmpEnemyFly,
+								r.nextInt(screenW), r.nextInt(50)));
+						break;
+					default:
+						break;
+					}
+				}
+
+				if (enemyArrayIndex == enemyArray.length - 1) {
+					enemyArrayIndex = 0;
+				} else {
+					enemyArrayIndex++;
+				}
+			}
+
 			break;
 
 		default:
