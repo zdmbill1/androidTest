@@ -28,7 +28,9 @@ public class Player {
 	}
 
 	public void draw(Canvas canvas, Paint paint) {
-		canvas.drawBitmap(bmpPlayer, x, y, paint);
+		if (collsionCount % 2 == 0) {
+			canvas.drawBitmap(bmpPlayer, x, y, paint);
+		}
 		// Log.w("game play draw","x="+x+";y="+y );
 		for (int i = 0; i < playerHp; i++) {
 			canvas.drawBitmap(bmpPlayerHp, 20 + (bmpPlayerHp.getWidth() + 5)
@@ -71,8 +73,48 @@ public class Player {
 
 	}
 
-	public void logic() {
+	private boolean isCollsion = false;
 
+	public boolean isCollsion(Enemy en) {
+		if (!isCollsion) {
+			// 矩形碰撞检测
+			// 飞机在敌机右侧
+			if (x >= en.x + en.frameW) {
+				return false;
+				// 飞机在左侧
+			} else if (x + bmpPlayer.getWidth() <= en.x) {
+				return false;
+				// 飞机在上侧
+			} else if (y + bmpPlayer.getHeight() <= en.y) {
+				return false;
+				// 飞机在下侧
+			} else if (y >= en.y + en.frameH) {
+				return false;
+			}
+			isCollsion = true;
+			Log.w("game player", "isCollsion = true");
+			return false;
+		} else {
+			return false;
+		}
+	}
+
+	public void setPlayerHp(Enemy en) {
+		// TODO 不同敌机伤害不一样。。。
+		playerHp = playerHp - 1;
+	}
+
+	private int collsionCount = 0;
+
+	public void logic() {
+		if (isCollsion) {
+			collsionCount++;
+			// 碰撞过后的无敌时间=20*50ms
+			if (collsionCount >= 20) {
+				isCollsion = false;
+				collsionCount = 0;
+			}
+		}
 	}
 
 }

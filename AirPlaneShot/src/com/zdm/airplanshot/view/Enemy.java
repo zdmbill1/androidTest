@@ -3,7 +3,6 @@ package com.zdm.airplanshot.view;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.util.Log;
 
 public abstract class Enemy {
 
@@ -25,7 +24,7 @@ public abstract class Enemy {
 		} else if (x > MySurfaceView.screenW - frameW - 10) {
 			x = MySurfaceView.screenW - frameW - 10;
 		}
-		Log.w("game enemy", "x=" + x);
+//		Log.w("game enemy", "x=" + x);
 	}
 
 	public void draw(Canvas canvas, Paint paint) {

@@ -222,12 +222,16 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 			Iterator<Enemy> it = enemys.iterator();
 			while (it.hasNext()) {
 				Enemy en = (Enemy) it.next();
+				if (player.isCollsion(en)) {
+					// player.setPlayerHp(en);
+				}
 				if (en.isDead) {
 					it.remove();
 				} else {
 					en.logic();
 				}
 			}
+			player.logic();
 			// 每次刷新间隔时间=50*100ms
 			if (count % 100 == 0) {
 				for (int enemyType : enemyArray[enemyArrayIndex]) {
