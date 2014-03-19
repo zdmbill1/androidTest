@@ -6,7 +6,7 @@ import android.graphics.Bitmap;
 
 public class EnemyDuck extends Enemy {
 
-	public EnemyDuck(Bitmap bmp, int x, int y) {
+	public EnemyDuck(Bitmap bmp, float x, float y) {
 		super(bmp, x, y);
 		speed = 3;
 	}

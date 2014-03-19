@@ -86,6 +86,11 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 	// 计数器，每次thread循环+1
 	private int count = 0;
 
+	private HashSet<Bullet> bEnemys = new HashSet<Bullet>();
+	private int countBulletEnemy = 0;
+	private HashSet<Bullet> bPlayers = new HashSet<Bullet>();
+	private int countBulletPlayer = 0;
+
 	public MySurfaceView(Context context) {
 		super(context);
 		sh = getHolder();
@@ -172,6 +177,8 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 		while (flag) {
 			long start = System.currentTimeMillis();
 			count++;
+			countBulletEnemy++;
+			countBulletPlayer++;
 			myDraw();
 			logic();
 			long end = System.currentTimeMillis();
@@ -199,6 +206,12 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 				player.draw(canvas, paint);
 				for (Enemy e : enemys) {
 					e.draw(canvas, paint);
+				}
+				for (Bullet b : bEnemys) {
+					b.draw(canvas, paint);
+				}
+				for (Bullet b : bPlayers) {
+					b.draw(canvas, paint);
 				}
 				break;
 			default:
@@ -231,9 +244,50 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 					en.logic();
 				}
 			}
+
+			Iterator<Bullet> itB = bEnemys.iterator();
+			while (itB.hasNext()) {
+				Bullet bullet = (Bullet) itB.next();
+				if(player.isCollsion(bullet)){
+					
+				}
+				if (bullet.isDead) {
+					itB.remove();
+				} else {
+					bullet.logic();
+				}
+			}
+
+			Iterator<Bullet> itBp = bPlayers.iterator();
+			while (itBp.hasNext()) {
+				Bullet bullet = (Bullet) itBp.next();
+				if (bullet.isDead) {
+					itBp.remove();
+				} else {
+					bullet.logic();
+				}
+			}
+			// 敌人每2秒发射个新子弹
+			if (countBulletEnemy % 40 == 0) {
+				countBulletEnemy = 0;
+				for (Enemy e : enemys) {
+					bEnemys.add(new BulletEnemy(bmpEnemyBullet, e.x + e.frameW
+							/ 2, e.y + e.frameH));
+				}
+			}
+			// 自己每1秒发射个子弹
+			if (countBulletPlayer % 20 == 0) {
+				countBulletPlayer = 0;
+				bPlayers.add(new BulletPlayer(bmpBullet, player.x
+						+ player.bmpPlayer.getWidth() / 2, player.y
+						- player.bmpPlayer.getHeight()));
+
+			}
+
 			player.logic();
 			// 每次刷新间隔时间=50*100ms
 			if (count % 100 == 0) {
+				count = 0;
 				for (int enemyType : enemyArray[enemyArrayIndex]) {
 					Random r = new Random();
 					switch (enemyType) {

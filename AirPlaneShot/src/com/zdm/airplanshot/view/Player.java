@@ -12,9 +12,9 @@ public class Player {
 
 	private int playerHp = 3;
 	private Bitmap bmpPlayerHp;// 主角飞机血量
-	private Bitmap bmpPlayer;// 游戏主角飞机
+	public Bitmap bmpPlayer;// 游戏主角飞机
 
-	private float x, y;
+	public float x, y;
 	private float lastTx = 0, lastTy = 0;
 	private long lastCalTime = 0;
 	private int speed = 10;
@@ -98,6 +98,30 @@ public class Player {
 			return false;
 		}
 	}
+	
+	public boolean isCollsion(Bullet bullet) {
+		if (!isCollsion) {
+			// 矩形碰撞检测
+			// 飞机在敌机右侧
+			if (x >= bullet.x + bullet.bmpBullet.getWidth()) {
+				return false;
+				// 飞机在左侧
+			} else if (x + bmpPlayer.getWidth() <= bullet.x) {
+				return false;
+				// 飞机在上侧
+			} else if (y + bmpPlayer.getHeight() <=bullet.y) {
+				return false;
+				// 飞机在下侧
+			} else if (y >= bullet.y + bullet.bmpBullet.getHeight()) {
+				return false;
+			}
+			isCollsion = true;
+			Log.w("game player", "isCollsion with bullet = true");
+			return false;
+		} else {
+			return false;
+		}
+	} 
 
 	public void setPlayerHp(Enemy en) {
 		// TODO 不同敌机伤害不一样。。。

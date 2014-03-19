@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 
 public class EnemyFly extends Enemy {
 
-	public EnemyFly(Bitmap bmp, int x, int y) {
+	public EnemyFly(Bitmap bmp, float x, float y) {
 		super(bmp, x, y);
 		speed = 8;
 	}

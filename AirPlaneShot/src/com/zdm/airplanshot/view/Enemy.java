@@ -7,13 +7,13 @@ import android.graphics.Paint;
 public abstract class Enemy {
 
 	protected Bitmap bmp;
-	protected int x = 0, y = 0;
+	protected float x = 0, y = 0;
 	protected int frameW, frameH, frameIndex = 0;
 	protected int speed = 5;
 
 	protected boolean isDead = false;
 
-	public Enemy(Bitmap bmp, int x, int y) {
+	public Enemy(Bitmap bmp, float x, float y) {
 		this.bmp = bmp;
 		this.x = x;
 		this.y = y;
