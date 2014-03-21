@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">FlashLight</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">You can open the cemera LED when shake the mobile phone only on lock screen. \nmail to:zdmbill@163.com.</string>
+    <string name="powerBt">Open/Off</string>
+    <string name="power_on">Off</string>
+    <string name="power_off">On</string>
+    <string name="title_activity_flash_light">FlashLightActivity</string>
+    <string name="advancedSet">Advanced Set</string>
+    <string name="num_picker_tv">Time Set</string>
+
+</resources>
