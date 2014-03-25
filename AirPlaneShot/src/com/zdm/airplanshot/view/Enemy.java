@@ -3,6 +3,7 @@ package com.zdm.airplanshot.view;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.util.Log;
 
 public abstract class Enemy {
 
@@ -24,7 +25,7 @@ public abstract class Enemy {
 		} else if (x > MySurfaceView.screenW - frameW - 10) {
 			x = MySurfaceView.screenW - frameW - 10;
 		}
-//		Log.w("game enemy", "x=" + x);
+		// Log.w("game enemy", "x=" + x);
 	}
 
 	public void draw(Canvas canvas, Paint paint) {
@@ -39,5 +40,25 @@ public abstract class Enemy {
 		if (frameIndex > 9) {
 			frameIndex = 0;
 		}
+	}
+
+	public boolean isCollision(Bullet bullet) {
+		// 矩形碰撞检测
+		// 敌机在子弹右侧
+		if (x >= bullet.x + bullet.bmpBullet.getWidth()) {
+			return false;
+			// 敌机在左侧
+		} else if (x + bmp.getWidth()/10 <= bullet.x) {
+			return false;
+			// 敌机在上侧
+		} else if (y + bmp.getHeight() <= bullet.y) {
+			return false;
+			// 敌机在下侧
+		} else if (y >= bullet.y + bullet.bmpBullet.getHeight()) {
+			return false;
+		}
+		isDead = true;
+		Log.w("game enemy", "enemy isCollsion with bullet bullet("+bullet.x+","+bullet.y+") enemy("+x+","+y+")");
+		return true;
 	}
 }

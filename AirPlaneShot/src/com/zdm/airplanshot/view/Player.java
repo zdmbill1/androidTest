@@ -64,8 +64,14 @@ public class Player {
 		if (x <= 0) {
 			x = 0;
 		}
+		if (x >= MySurfaceView.screenW - bmpPlayer.getWidth()) {
+			x = MySurfaceView.screenW - bmpPlayer.getWidth();
+		}
 		if (y >= MySurfaceView.screenH - bmpPlayer.getHeight() - 10) {
 			y = MySurfaceView.screenH - bmpPlayer.getHeight() - 10;
+		}
+		if (y <= 0) {
+			y = 0;
 		}
 		// Log.w("game play touch", "x=" + x + ";y=" + y);
 		// Log.w("game player",
@@ -73,10 +79,10 @@ public class Player {
 
 	}
 
-	private boolean isCollsion = false;
+	private boolean isCollision = false;
 
-	public boolean isCollsion(Enemy en) {
-		if (!isCollsion) {
+	public boolean isCollision(Enemy en) {
+		if (!isCollision) {
 			// 矩形碰撞检测
 			// 飞机在敌机右侧
 			if (x >= en.x + en.frameW) {
@@ -91,16 +97,16 @@ public class Player {
 			} else if (y >= en.y + en.frameH) {
 				return false;
 			}
-			isCollsion = true;
+			isCollision = true;
 			Log.w("game player", "isCollsion = true");
 			return false;
 		} else {
 			return false;
 		}
 	}
-	
-	public boolean isCollsion(Bullet bullet) {
-		if (!isCollsion) {
+
+	public boolean isCollision(Bullet bullet) {
+		if (!isCollision) {
 			// 矩形碰撞检测
 			// 飞机在敌机右侧
 			if (x >= bullet.x + bullet.bmpBullet.getWidth()) {
@@ -109,19 +115,19 @@ public class Player {
 			} else if (x + bmpPlayer.getWidth() <= bullet.x) {
 				return false;
 				// 飞机在上侧
-			} else if (y + bmpPlayer.getHeight() <=bullet.y) {
+			} else if (y + bmpPlayer.getHeight() <= bullet.y) {
 				return false;
 				// 飞机在下侧
 			} else if (y >= bullet.y + bullet.bmpBullet.getHeight()) {
 				return false;
 			}
-			isCollsion = true;
+			isCollision = true;
 			Log.w("game player", "isCollsion with bullet = true");
-			return false;
+			return true;
 		} else {
 			return false;
 		}
-	} 
+	}
 
 	public void setPlayerHp(Enemy en) {
 		// TODO 不同敌机伤害不一样。。。
@@ -131,11 +137,11 @@ public class Player {
 	private int collsionCount = 0;
 
 	public void logic() {
-		if (isCollsion) {
+		if (isCollision) {
 			collsionCount++;
 			// 碰撞过后的无敌时间=20*50ms
 			if (collsionCount >= 20) {
-				isCollsion = false;
+				isCollision = false;
 				collsionCount = 0;
 			}
 		}

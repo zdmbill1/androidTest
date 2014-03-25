@@ -91,6 +91,8 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 	private HashSet<Bullet> bPlayers = new HashSet<Bullet>();
 	private int countBulletPlayer = 0;
 
+	private HashSet<Boom> booms = new HashSet<Boom>();
+
 	public MySurfaceView(Context context) {
 		super(context);
 		sh = getHolder();
@@ -213,6 +215,9 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 				for (Bullet b : bPlayers) {
 					b.draw(canvas, paint);
 				}
+				for (Boom b : booms) {
+					b.draw(canvas, paint);
+				}
 				break;
 			default:
 				break;
@@ -232,39 +237,58 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 		case GAME_PLAY:
 			gameBg.logic();
 
+			Iterator<Boom> itBoom = booms.iterator();
+			while (itBoom.hasNext()) {
+				Boom boom = (Boom) itBoom.next();
+				boom.logic();
+				if (boom.ended) {
+					itBoom.remove();
+				}
+			}
+
 			Iterator<Enemy> it = enemys.iterator();
 			while (it.hasNext()) {
 				Enemy en = (Enemy) it.next();
-				if (player.isCollsion(en)) {
+				if (player.isCollision(en)) {
 					// player.setPlayerHp(en);
+				}
+				// 判断子弹是否击中敌机
+				Iterator<Bullet> itBp = bPlayers.iterator();
+				while (itBp.hasNext()) {
+					Bullet bullet = (Bullet) itBp.next();
+					if (en.isCollision(bullet)) {
+						itBp.remove();
+					}
 				}
 				if (en.isDead) {
 					it.remove();
+					Boom b = new Boom(bmpBoom, en.x + en.frameW / 2, en.y
+							+ en.frameH / 2);
+					booms.add(b);
 				} else {
 					en.logic();
 				}
+
 			}
 
 			Iterator<Bullet> itB = bEnemys.iterator();
 			while (itB.hasNext()) {
 				Bullet bullet = (Bullet) itB.next();
-				if(player.isCollsion(bullet)){
-					
+				if (player.isCollision(bullet)) {
+
 				}
+				bullet.logic();
 				if (bullet.isDead) {
 					itB.remove();
-				} else {
-					bullet.logic();
 				}
 			}
 
 			Iterator<Bullet> itBp = bPlayers.iterator();
 			while (itBp.hasNext()) {
 				Bullet bullet = (Bullet) itBp.next();
+				bullet.logic();
 				if (bullet.isDead) {
 					itBp.remove();
-				} else {
-					bullet.logic();
 				}
 			}
 			// 敌人每2秒发射个新子弹
