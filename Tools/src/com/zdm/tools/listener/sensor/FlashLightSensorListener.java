@@ -5,7 +5,10 @@ import java.util.Calendar;
 import java.util.List;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.hardware.Camera;
@@ -19,6 +22,7 @@ import android.widget.ToggleButton;
 
 import com.zdm.tools.R;
 import com.zdm.tools.audio.BackAudioPlay;
+import com.zdm.tools.receiver.TimingReceiver;
 
 public class FlashLightSensorListener implements SensorEventListener {
 
@@ -62,6 +66,9 @@ public class FlashLightSensorListener implements SensorEventListener {
 	private SharedPreferences sp;
 	private Editor editor;
 
+	private AlarmManager alarm;
+	private PendingIntent pendingIntent;
+
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 		Log.i("fl-flSListener", "not implemmented");
@@ -102,11 +109,26 @@ public class FlashLightSensorListener implements SensorEventListener {
 	// 通过按钮点击，无需声音和无效时间判断
 	public void clickShake() {
 		on = !on;
-		operateCamera(on);
+		clickOperateCamera(on);
 		Activity a = (Activity) mContext;
 		Log.w("fl-flSListener", mContext.getClass().getName());
 		ToggleButton tb = (ToggleButton) a.findViewById(R.id.toggleButton1);
 		tb.setChecked(on);
+	}
+
+	public void clickOperateCamera(boolean on) {
+		if (on) {
+			Log.w("fl-flSListener", "打开手电筒");
+			camera = Camera.open();
+			Parameters params = camera.getParameters();
+			params.setFlashMode(Parameters.FLASH_MODE_TORCH);
+			camera.setParameters(params);
+			camera.startPreview(); // 开始亮灯
+		} else {
+			Log.w("fl-flSListener", "关闭手电筒");
+			camera.stopPreview(); // 关掉亮灯
+			camera.release(); // 关掉照相机
+		}
 	}
 
 	public void operateCamera(boolean on) {
@@ -117,7 +139,18 @@ public class FlashLightSensorListener implements SensorEventListener {
 			params.setFlashMode(Parameters.FLASH_MODE_TORCH);
 			camera.setParameters(params);
 			camera.startPreview(); // 开始亮灯
+
+			// 包装需要执行Service的Intent
+			Intent intent = new Intent(mContext, TimingReceiver.class);
+			// service在锁屏状态下无法执行
+			pendingIntent = PendingIntent.getBroadcast(mContext, 0, intent,
+					PendingIntent.FLAG_UPDATE_CURRENT);
+			//60秒后关闭
+			alarm.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+60*1000,
+					pendingIntent);
+
 		} else {
+			alarm.cancel(pendingIntent);
 			Log.w("fl-flSListener", "关闭手电筒");
 			camera.stopPreview(); // 关掉亮灯
 			camera.release(); // 关掉照相机
@@ -241,6 +274,8 @@ public class FlashLightSensorListener implements SensorEventListener {
 		if (mContext != null) {
 			sManager = (SensorManager) mContext
 					.getSystemService(Context.SENSOR_SERVICE);
+			alarm = (AlarmManager) mContext
+					.getSystemService(Context.ALARM_SERVICE);	
 			sShake = sManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 			sp = mContext.getSharedPreferences("SP", Context.MODE_PRIVATE);
 			editor = sp.edit();

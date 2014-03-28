@@ -324,6 +324,31 @@ public class MainActivity extends Activity {
 		// hookB.setTitle("最后挂机无效时间设置");
 
 		flsl.regFLListener();
+
+		// // 设定一个五秒后的时间
+		// Calendar calendar = Calendar.getInstance();
+		// calendar.setTimeInMillis(System.currentTimeMillis());
+		// calendar.add(Calendar.SECOND, 5);
+		//
+		// // 包装需要执行Service的Intent
+		// Intent intent = new Intent(this, TimingService.class);
+		// PendingIntent pendingIntent = PendingIntent.getService(this, 0,
+		// intent,
+		// PendingIntent.FLAG_ONE_SHOT);
+		//
+		// AlarmManager alarm = (AlarmManager)
+		// getSystemService(Context.ALARM_SERVICE);
+		// alarm.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+		// pendingIntent);
+
+		// 包装需要执行Service的Intent
+//		Intent intent = new Intent(this, TimingReceiver.class);
+//		PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0,
+//				intent, PendingIntent.FLAG_UPDATE_CURRENT);
+//
+//		AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+//		alarm.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+//				pendingIntent);
 	}
 
 	public int getCheckedId() {
@@ -474,7 +499,7 @@ public class MainActivity extends Activity {
 
 		getContentResolver().unregisterContentObserver(laObser);
 		flsl.setPressHomeFlag(false);
-		
+
 		super.onDestroy();
 
 		// System.exit(0);
