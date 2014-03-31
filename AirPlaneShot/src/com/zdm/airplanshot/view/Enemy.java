@@ -58,7 +58,6 @@ public abstract class Enemy {
 			return false;
 		}
 		isDead = true;
-		Log.w("game enemy", "enemy isCollsion with bullet bullet("+bullet.x+","+bullet.y+") enemy("+x+","+y+")");
 		return true;
 	}
 }

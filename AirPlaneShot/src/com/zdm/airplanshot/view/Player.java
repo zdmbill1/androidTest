@@ -5,7 +5,6 @@ import java.util.Calendar;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.util.Log;
 import android.view.MotionEvent;
 
 public class Player {
@@ -73,10 +72,6 @@ public class Player {
 		if (y <= 0) {
 			y = 0;
 		}
-		// Log.w("game play touch", "x=" + x + ";y=" + y);
-		// Log.w("game player",
-		// "x="+x+";y="+y+";tx="+tx+";ty="+ty+" lastTx="+lastTx+";lastTy="+lastTy);
-
 	}
 
 	private boolean isCollision = false;
@@ -97,8 +92,7 @@ public class Player {
 			} else if (y >= en.y + en.frameH) {
 				return false;
 			}
-			isCollision = true;
-			Log.w("game player", "isCollsion = true");
+			isCollision = true;			
 			return false;
 		} else {
 			return false;
@@ -122,7 +116,6 @@ public class Player {
 				return false;
 			}
 			isCollision = true;
-			Log.w("game player", "isCollsion with bullet = true");
 			return true;
 		} else {
 			return false;

@@ -28,9 +28,7 @@ public class GameMenu {
 		btnY = MySurfaceView.screenH - bmpButton.getHeight();
 		isPress = false;
 		this.bmpMenu = Bitmap.createScaledBitmap(bmpMenu,
-				 MySurfaceView.screenW,  MySurfaceView.screenH, true);
-		// this.bmpMenu = Bitmap.createBitmap(bmpMenu, 0, 0,
-		// MySurfaceView.screenW, MySurfaceView.screenH);
+				MySurfaceView.screenW, MySurfaceView.screenH, true);
 	}
 
 	public void draw(Canvas canvas, Paint paint) {
@@ -59,6 +57,7 @@ public class GameMenu {
 			if (r.contains(x, y)) {
 				isPress = false;
 				MySurfaceView.gameState = MySurfaceView.GAME_PLAY;
+				MySurfaceView.startTime = System.currentTimeMillis();
 			}
 		}
 	}

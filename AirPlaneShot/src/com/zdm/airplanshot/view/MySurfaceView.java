@@ -86,12 +86,16 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 	// 计数器，每次thread循环+1
 	private int count = 0;
 
+	/** 敌机子弹 */
 	private HashSet<Bullet> bEnemys = new HashSet<Bullet>();
 	private int countBulletEnemy = 0;
 	private HashSet<Bullet> bPlayers = new HashSet<Bullet>();
 	private int countBulletPlayer = 0;
 
 	private HashSet<Boom> booms = new HashSet<Boom>();
+
+	private EnemyBoss enBoss;
+	public static long startTime = 0;
 
 	public MySurfaceView(Context context) {
 		super(context);
@@ -100,6 +104,8 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 		sh.addCallback(this);
 		paint = new Paint();
 		paint.setColor(Color.BLACK);
+		paint.setTextSize(20);
+		paint.setColor(Color.WHITE);
 		// 设置无锯齿
 		paint.setAntiAlias(true);
 
@@ -172,6 +178,8 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 		gameMenu = new GameMenu(bmpMenu, bmpButton, bmpButtonPress);
 		gameBg = new GameBackGround(bmpBackGround);
 		player = new Player(bmpPlayerHp, bmpPlayer);
+
+		enBoss = null;
 	}
 
 	@Override
@@ -206,6 +214,11 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 			case GAME_PLAY:
 				gameBg.draw(canvas, paint);
 				player.draw(canvas, paint);
+				if (enBoss != null) {
+					enBoss.draw(canvas, paint);
+					
+					canvas.drawText("bossHp="+enBoss.getBossHp(), 50, 50, paint);
+				}
 				for (Enemy e : enemys) {
 					e.draw(canvas, paint);
 				}
@@ -218,6 +231,7 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 				for (Boom b : booms) {
 					b.draw(canvas, paint);
 				}
+
 				break;
 			default:
 				break;
@@ -289,6 +303,27 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 				bullet.logic();
 				if (bullet.isDead) {
 					itBp.remove();
+					// 判断是否打中boss
+				} else if (enBoss != null && enBoss.isCollision(bullet)) {
+					itBp.remove();
+					// 暂定攻击力为1
+					enBoss.setBossHp(1);
+					// 击中就爆炸次
+					if (enBoss.isRight) {
+						booms.add(new Boom(bmpBoosBoom, enBoss.x + 25
+								+ enBoss.speed * 5, enBoss.y + 30, 5));
+						booms.add(new Boom(bmpBoosBoom, enBoss.x + 35
+								+ enBoss.speed * 5, enBoss.y + 40, 5));
+						booms.add(new Boom(bmpBoosBoom, enBoss.x + 45
+								+ enBoss.speed * 5, enBoss.y + 50, 5));
+					} else {
+						booms.add(new Boom(bmpBoosBoom, enBoss.x + 25,
+								enBoss.y + 30, 5));
+						booms.add(new Boom(bmpBoosBoom, enBoss.x + 35,
+								enBoss.y + 40, 5));
+						booms.add(new Boom(bmpBoosBoom, enBoss.x + 45,
+								enBoss.y + 50, 5));
+					}
 				}
 			}
 			// 敌人每2秒发射个新子弹
@@ -298,6 +333,7 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 					bEnemys.add(new BulletEnemy(bmpEnemyBullet, e.x + e.frameW
 							/ 2, e.y + e.frameH));
 				}
+				
 			}
 			// 自己每1秒发射个子弹
 			if (countBulletPlayer % 20 == 0) {
@@ -305,6 +341,16 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 				bPlayers.add(new BulletPlayer(bmpBullet, player.x
 						+ player.bmpPlayer.getWidth() / 2, player.y
 						- player.bmpPlayer.getHeight()));
+				
+				if (enBoss != null) {
+					// boss刚开始普通子弹
+					if (!enBoss.crazy) {
+						bEnemys.add(new BulletEnemy(bmpBossBullet, enBoss.x
+								+ enBoss.frameW / 2, enBoss.y + enBoss.frameH));
+					} else {
+						bEnemys.addAll(enBoss.addBullets());
+					}
+				}
 
 			}
 
@@ -334,6 +380,17 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 				} else {
 					enemyArrayIndex++;
 				}
+			}
+
+			if (enBoss == null) {
+				// 开始游戏大于5秒刷boss
+				if (System.currentTimeMillis() - startTime >= 5000) {
+					enBoss = new EnemyBoss(bmpEnemyBoos, screenW / 2
+							- bmpEnemyBoos.getWidth() / (2 * 10), 200);
+				}
+			} else {
+				enBoss.logic();
+				player.isCollision(enBoss);
 			}
 
 			break;

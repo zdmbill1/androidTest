@@ -14,10 +14,14 @@ public class Boom {
 
 	// 传过来的为爆炸中心点
 	public Boom(Bitmap bmpBoom, float x, float y) {
-		super();
 		this.bmpBoom = bmpBoom;
 		this.x = x - (bmpBoom.getWidth() / totalFrames) / 2;
 		this.y = y - bmpBoom.getHeight() / 2;
+	}
+	
+	public Boom(Bitmap bmpBoom, float x, float y,int totalFrames) {
+		this(bmpBoom, x, y);
+		this.totalFrames=totalFrames;		
 	}
 
 	public void draw(Canvas canvas, Paint paint) {

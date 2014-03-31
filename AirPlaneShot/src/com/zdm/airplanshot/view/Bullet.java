@@ -14,14 +14,14 @@ public abstract class Bullet {
 	public Bullet(Bitmap bmpBullet, float x, float y) {
 		super();
 		this.bmpBullet = bmpBullet;
-		this.x = x;
-		this.y = y;
+		this.x = x - bmpBullet.getWidth() / 2;
+		this.y = y - bmpBullet.getHeight() / 2;
 	}
-	
-	public void draw(Canvas canvas,Paint paint){
+
+	public void draw(Canvas canvas, Paint paint) {
 		canvas.drawBitmap(bmpBullet, x, y, paint);
 	}
-	
+
 	public abstract void logic();
 
 }
