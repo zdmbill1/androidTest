@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
@@ -57,8 +58,6 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 
 	public final int ENEMY_DUCK = 0;
 	public final int ENEMY_FLY = 1;
-
-	private boolean isBoss = false;
 
 	private int enemyArray[][] = {
 			{ ENEMY_DUCK, ENEMY_FLY, ENEMY_FLY, ENEMY_FLY, ENEMY_DUCK,
@@ -124,6 +123,7 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 		initGame();
 		flag = true;
 		new Thread(this).start();
+		setKeepScreenOn(true);
 	}
 
 	@Override
@@ -180,6 +180,22 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 		player = new Player(bmpPlayerHp, bmpPlayer);
 
 		enBoss = null;
+
+		bmpGameWin = Bitmap.createScaledBitmap(bmpGameWin,
+				MySurfaceView.screenW, MySurfaceView.screenH, true);
+		bmpGameLost = Bitmap.createScaledBitmap(bmpGameLost,
+				MySurfaceView.screenW, MySurfaceView.screenH, true);
+
+		enemyArrayIndex = 0;
+		count = 0;
+		countBulletEnemy = 0;
+		countBulletPlayer = 0;
+
+		enemys = new HashSet<Enemy>();
+		bEnemys = new HashSet<Bullet>();
+		bPlayers = new HashSet<Bullet>();
+		booms = new HashSet<Boom>();
+
 	}
 
 	@Override
@@ -216,8 +232,9 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 				player.draw(canvas, paint);
 				if (enBoss != null) {
 					enBoss.draw(canvas, paint);
-					
-					canvas.drawText("bossHp="+enBoss.getBossHp(), 50, 50, paint);
+
+					canvas.drawText("bossHp=" + enBoss.getBossHp(), 50, 50,
+							paint);
 				}
 				for (Enemy e : enemys) {
 					e.draw(canvas, paint);
@@ -232,6 +249,12 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 					b.draw(canvas, paint);
 				}
 
+				break;
+			case END_GOOD:
+				canvas.drawBitmap(bmpGameWin, 0, 0, paint);
+				break;
+			case END_BAD:
+				canvas.drawBitmap(bmpGameLost, 0, 0, paint);
 				break;
 			default:
 				break;
@@ -264,7 +287,11 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 			while (it.hasNext()) {
 				Enemy en = (Enemy) it.next();
 				if (player.isCollision(en)) {
-					// player.setPlayerHp(en);
+					player.setPlayerHp(en);
+					if (player.isDead) {
+						gameState = END_BAD;
+						return;
+					}
 				}
 				// 判断子弹是否击中敌机
 				Iterator<Bullet> itBp = bPlayers.iterator();
@@ -289,7 +316,11 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 			while (itB.hasNext()) {
 				Bullet bullet = (Bullet) itB.next();
 				if (player.isCollision(bullet)) {
-
+					player.setPlayerHp(bullet);
+					if (player.isDead) {
+						gameState = END_BAD;
+						return;
+					}
 				}
 				bullet.logic();
 				if (bullet.isDead) {
@@ -324,6 +355,10 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 						booms.add(new Boom(bmpBoosBoom, enBoss.x + 45,
 								enBoss.y + 50, 5));
 					}
+
+					if (enBoss.isDead) {
+						gameState = END_GOOD;
+					}
 				}
 			}
 			// 敌人每2秒发射个新子弹
@@ -333,7 +368,7 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 					bEnemys.add(new BulletEnemy(bmpEnemyBullet, e.x + e.frameW
 							/ 2, e.y + e.frameH));
 				}
-				
+
 			}
 			// 自己每1秒发射个子弹
 			if (countBulletPlayer % 20 == 0) {
@@ -341,7 +376,7 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 				bPlayers.add(new BulletPlayer(bmpBullet, player.x
 						+ player.bmpPlayer.getWidth() / 2, player.y
 						- player.bmpPlayer.getHeight()));
-				
+
 				if (enBoss != null) {
 					// boss刚开始普通子弹
 					if (!enBoss.crazy) {
@@ -390,7 +425,13 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 				}
 			} else {
 				enBoss.logic();
-				player.isCollision(enBoss);
+				if (player.isCollision(enBoss)) {
+					player.setPlayerHp(enBoss);
+					if (player.isDead) {
+						gameState = END_BAD;
+						return;
+					}
+				}
 			}
 
 			break;
@@ -409,6 +450,21 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
 		flag = false;
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			if (gameState == GAME_PLAY || gameState == END_BAD
+					|| gameState == END_GOOD) {
+				gameState = GAME_MENU;
+				initGame();
+
+			} else if (gameState == GAME_MENU) {
+				System.exit(0);
+			}
+		}
+		return true;
 	}
 
 }

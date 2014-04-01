@@ -17,6 +17,7 @@ public class Player {
 	private float lastTx = 0, lastTy = 0;
 	private long lastCalTime = 0;
 	private int speed = 10;
+	public boolean isDead = false;
 
 	public Player(Bitmap bmpPlayerHp, Bitmap bmpPlayer) {
 		super();
@@ -24,6 +25,7 @@ public class Player {
 		this.bmpPlayer = bmpPlayer;
 		x = MySurfaceView.screenW / 2 - bmpPlayer.getWidth() / 2;
 		y = MySurfaceView.screenH - bmpPlayer.getHeight() - 10;
+		playerHp = 3;
 	}
 
 	public void draw(Canvas canvas, Paint paint) {
@@ -92,7 +94,7 @@ public class Player {
 			} else if (y >= en.y + en.frameH) {
 				return false;
 			}
-			isCollision = true;			
+			isCollision = true;
 			return false;
 		} else {
 			return false;
@@ -125,6 +127,17 @@ public class Player {
 	public void setPlayerHp(Enemy en) {
 		// TODO 不同敌机伤害不一样。。。
 		playerHp = playerHp - 1;
+		if (playerHp <= 0) {
+			isDead = true;
+		}
+	}
+
+	public void setPlayerHp(Bullet b) {
+		// TODO 不同敌机伤害不一样。。。
+		playerHp = playerHp - 1;
+		if (playerHp <= 0) {
+			isDead = true;
+		}
 	}
 
 	private int collsionCount = 0;
