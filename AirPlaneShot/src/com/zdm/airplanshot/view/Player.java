@@ -18,6 +18,7 @@ public class Player {
 	private long lastCalTime = 0;
 	private int speed = 10;
 	public boolean isDead = false;
+	public boolean isMoveByTouch = false;
 
 	public Player(Bitmap bmpPlayerHp, Bitmap bmpPlayer) {
 		super();
@@ -57,10 +58,12 @@ public class Player {
 			lastCalTime = calTime;
 			lastTx = tx;
 			lastTy = ty;
+			isMoveByTouch = true;
 		} else if (event.getAction() == MotionEvent.ACTION_UP) {
 			lastTx = 0;
 			lastTy = 0;
 			lastCalTime = 0;
+			isMoveByTouch = false;
 		}
 		if (x <= 0) {
 			x = 0;

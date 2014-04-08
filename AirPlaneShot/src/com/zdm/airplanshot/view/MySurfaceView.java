@@ -4,12 +4,17 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Random;
 
+import android.app.Service;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -58,6 +63,15 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 
 	public final int ENEMY_DUCK = 0;
 	public final int ENEMY_FLY = 1;
+
+	// 新增根据动力感应移动
+	// 声明一个传感器管理器
+	private SensorManager sm;
+	// 声明一个传感器
+	private Sensor sensor;
+	// 声明一个传感器监听器
+	private SensorEventListener mySensorListener;
+	private float sensorX = 0, sensorY = 0;
 
 	private int enemyArray[][] = {
 			{ ENEMY_DUCK, ENEMY_FLY, ENEMY_FLY, ENEMY_FLY, ENEMY_DUCK,
@@ -114,6 +128,9 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 		setFocusableInTouchMode(true);
 		// 设置背景常亮
 		setKeepScreenOn(true);
+
+		// 获取传感器管理类实例
+		sm = (SensorManager) context.getSystemService(Service.SENSOR_SERVICE);
 	}
 
 	@Override
@@ -196,6 +213,48 @@ public class MySurfaceView extends SurfaceView implements Runnable, Callback {
 		bPlayers = new HashSet<Bullet>();
 		booms = new HashSet<Boom>();
 
+		// 实例一个重力传感器实例
+		sensor = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+		// 实例传感器监听器
+		mySensorListener = new SensorEventListener() {
+			@Override
+			// 传感器获取值发生改变时在响应此函数
+			public void onSensorChanged(SensorEvent event) {
+				if (!player.isMoveByTouch) {
+					sensorX = event.values[0];
+					// x>0 说明当前手机左翻 x<0右翻
+					sensorY = event.values[1];
+					// y>0 说明当前手机下翻 y<0上翻
+					// z = event.values[2];
+					// z>0 手机屏幕朝上 z<0 手机屏幕朝下
+					if (sensorX > 1 || sensorX < -1) {
+						player.x -= sensorX;
+					}
+					if (sensorY > 1 || sensorY < -1) {
+						player.y += sensorY;
+					}
+
+					if (player.x >= screenW - bmpPlayer.getWidth()) {
+						player.x = screenW - bmpPlayer.getWidth();
+					} else if (player.x <= 0) {
+						player.x = 0;
+					}
+					if (player.y >= screenH - bmpPlayer.getHeight()) {
+						player.y = screenH - bmpPlayer.getHeight();
+					} else if (player.y <= 0) {
+						player.y = 0;
+					}
+				}
+			}
+
+			@Override
+			// 传感器的精度发生改变时响应此函数
+			public void onAccuracyChanged(Sensor sensor, int accuracy) {
+			}
+		};
+		// 为传感器注册监听器
+		sm.registerListener(mySensorListener, sensor,
+				SensorManager.SENSOR_DELAY_GAME);
 	}
 
 	@Override
