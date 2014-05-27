@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites>
+  <testsuite errors="1" failures="0" hostname="bill-desktop" id="0" name="MethodTest" package="com.zdm.test.junit.testcase" tests="4" time="0.115" timestamp="2013-07-25T07:28:11">
+      <properties>
+          <property name="java.runtime.name" value="Java(TM) 2 Runtime Environment, Standard Edition" />
+
+          <property name="sun.boot.library.path" value="/home/bill/soft/jdk1.5.0_12/jre/lib/i386" />
+
+          <property name="java.vm.version" value="1.5.0_12-b04" />
+
+          <property name="ant.library.dir" value="/home/bill/soft/eclipse/plugins/org.apache.ant_1.7.1.v20090120-1145/lib" />
+
+          <property name="ant.version" value="Apache Ant version 1.7.1 compiled on June 27 2008" />
+
+          <property name="ant.java.version" value="1.5" />
+
+          <property name="java.vm.vendor" value="Sun Microsystems Inc." />
+
+          <property name="java.vendor.url" value="http://java.sun.com/" />
+
+          <property name="path.separator" value=":" />
+
+          <property name="java.vm.name" value="Java HotSpot(TM) Server VM" />
+
+          <property name="file.encoding.pkg" value="sun.io" />
+
+          <property name="user.country" value="US" />
+
+          <property name="sun.java.launcher" value="SUN_STANDARD" />
+
+          <property name="sun.os.patch.level" value="unknown" />
+
+          <property name="java.vm.specification.name" value="Java Virtual Machine Specification" />
+
+          <property name="user.dir" value="/home/bill/workspace/test" />
+
+          <property name="lib" value="/home/bill/workspace/test/lib" />
+
+          <property name="java.runtime.version" value="1.5.0_12-b04" />
+
+          <property name="java.awt.graphicsenv" value="sun.awt.X11GraphicsEnvironment" />
+
+          <property name="eclipse.pdebuild.scripts" value="/home/bill/soft/eclipse/plugins/org.eclipse.pde.build_3.5.2.R35x_20100114/scripts//" />
+
+          <property name="basedir" value="/home/bill/workspace/test" />
+
+          <property name="java.endorsed.dirs" value="/home/bill/soft/jdk1.5.0_12/jre/lib/endorsed" />
+
+          <property name="os.arch" value="i386" />
+
+          <property name="java.io.tmpdir" value="/tmp" />
+
+          <property name="ant.core.lib" value="/home/bill/soft/eclipse/plugins/org.apache.ant_1.7.1.v20090120-1145/lib/ant.jar" />
+
+          <property name="line.separator" value=" " />
+
+          <property name="java.vm.specification.vendor" value="Sun Microsystems Inc." />
+
+          <property name="os.name" value="Linux" />
+
+          <property name="ant.home" value="/home/bill/soft/eclipse/plugins/org.apache.ant_1.7.1.v20090120-1145" />
+
+          <property name="eclipse.pdebuild.templates" value="/home/bill/soft/eclipse/plugins/org.eclipse.pde.build_3.5.2.R35x_20100114/templates//" />
+
+          <property name="ant.project.name" value="testant" />
+
+          <property name="sun.jnu.encoding" value="UTF-8" />
+
+          <property name="ant.file.testant" value="/home/bill/workspace/test/build.xml" />
+
+          <property name="java.library.path" value="/home/bill/soft/jdk1.5.0_12/jre/lib/i386/server:/home/bill/soft/jdk1.5.0_12/jre/lib/i386:/home/bill/soft/jdk1.5.0_12/jre/../lib/i386:/home/bill/soft/jdk1.6.0_31/jre/lib/i386/client:/home/bill/soft/jdk1.6.0_31/jre/lib/i386:/usr/lib/xulrunner-addons:/usr/lib/xulrunner-addons" />
+
+          <property name="eclipse.pdebuild.home" value="/home/bill/soft/eclipse/plugins/org.eclipse.pde.build_3.5.2.R35x_20100114/.//" />
+
+          <property name="java.specification.name" value="Java Platform API Specification" />
+
+          <property name="java.class.version" value="49.0" />
+
+          <property name="sun.management.compiler" value="HotSpot Server Compiler" />
+
+          <property name="os.version" value="2.6.32-21-generic" />
+
+          <property name="ant.file" value="/home/bill/workspace/test/build.xml" />
+
+          <property name="target.report.dir" value="/home/bill/workspace/test/report" />
+
+          <property name="user.home" value="/home/bill" />
+
+          <property name="user.timezone" value="" />
+
+          <property name="java.awt.printerjob" value="sun.print.PSPrinterJob" />
+
+          <property name="java.specification.version" value="1.5" />
+
+          <property name="file.encoding" value="UTF-8" />
+
+          <property name="user.name" value="bill" />
+
+          <property name="java.class.path" value="/home/bill/workspace/test/lib/commons-lang-2.3.jar:/home/bill/workspace/test/lib/hamcrest-core-1.2.1.jar:/home/bill/workspace/test/lib/junit-4.11.jar:/home/bill/workspace/test/build/classes:/home/bill/workspace/test:/home/bill/soft/jdk1.5.0_12/lib:/home/bill/soft/jdk1.5.0_12/jre/lib:/home/bill/soft/eclipse/plugins/org.apache.ant_1.7.1.v20090120-1145/lib/ant-launcher.jar:/home/bill/soft/eclipse/plugins/org.apache.ant_1.7.1.v20090120-1145/lib/ant.jar:/home/bill/soft/eclipse/plugins/org.apache.ant_1.7.1.v20090120-1145/lib/ant-junit.jar" />
+
+          <property name="java.vm.specification.version" value="1.0" />
+
+          <property name="sun.arch.data.model" value="32" />
+
+          <property name="java.home" value="/home/bill/soft/jdk1.5.0_12/jre" />
+
+          <property name="java.specification.vendor" value="Sun Microsystems Inc." />
+
+          <property name="user.language" value="en" />
+
+          <property name="java.vm.info" value="mixed mode" />
+
+          <property name="java.version" value="1.5.0_12" />
+
+          <property name="java.ext.dirs" value="/home/bill/soft/jdk1.5.0_12/jre/lib/ext" />
+
+          <property name="sun.boot.class.path" value="/home/bill/soft/jdk1.5.0_12/jre/lib/rt.jar:/home/bill/soft/jdk1.5.0_12/jre/lib/i18n.jar:/home/bill/soft/jdk1.5.0_12/jre/lib/sunrsasign.jar:/home/bill/soft/jdk1.5.0_12/jre/lib/jsse.jar:/home/bill/soft/jdk1.5.0_12/jre/lib/jce.jar:/home/bill/soft/jdk1.5.0_12/jre/lib/charsets.jar:/home/bill/soft/jdk1.5.0_12/jre/classes" />
+
+          <property name="java.vendor" value="Sun Microsystems Inc." />
+
+          <property name="file.separator" value="/" />
+
+          <property name="java.vendor.url.bug" value="http://java.sun.com/cgi-bin/bugreport.cgi" />
+
+          <property name="sun.io.unicode.encoding" value="UnicodeLittle" />
+
+          <property name="sun.cpu.endian" value="little" />
+
+          <property name="sun.desktop" value="gnome" />
+
+          <property name="sun.cpu.isalist" value="" />
+
+      </properties>
+
+      <testcase classname="com.zdm.test.junit.testcase.MethodTest" name="bFasleTest" time="0.02">
+          <error message="expected:&lt;[1]User [id=1, name=Bil...&gt; but was:&lt;[]User [id=1, name=Bil...&gt;" type="org.junit.ComparisonFailure">	at com.zdm.test.junit.testcase.MethodTest.bFasleTest(Unknown Source)
+</error>
+
+      </testcase>
+
+      <testcase classname="com.zdm.test.junit.testcase.MethodTest" name="empty" time="0.0010" />
+
+      <testcase classname="com.zdm.test.junit.testcase.MethodTest" name="hTest" time="0.0" />
+
+      <testcase classname="com.zdm.test.junit.testcase.MethodTest" name="toStringTest" time="0.0060" />
+
+      <system-out><![CDATA[@BeforeClass
+before
+after
+before
+after
+before
+htest
+after
+before
+after
+@AfterClass
+]]></system-out>
+
+      <system-err />
+
+  </testsuite>
+</testsuites>

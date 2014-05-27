@@ -1,0 +1,73 @@
+<?xml version="1.0" ?>
+<project name="testant" default="junit" basedir=".">
+
+	<property name="lib" value="${basedir}/lib" />
+	<property name="target.report.dir" value="${basedir}/report" />
+
+	<target name="getBaseDir">
+		<echo message="The base dir is: ${basedir}" />
+		<echo message="Java Version: ${ant.java.version}" />
+	</target>
+
+	<target name="clean">
+		<delete dir="${basedir}/build" />
+	</target>
+	<target name="compile" depends="clean">
+		<mkdir dir="${basedir}/build/classes" />
+		<javac srcdir="${basedir}/src" destdir="${basedir}/build/classes">
+			<classpath>
+				<fileset dir="${lib}" includes="*.jar" />
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="jar" depends="compile">
+		<echo message="start to jar打包" />
+		<jar destfile="t.jar" basedir="${basedir}/build/classes">
+			<!--  jar新增主java文件-->
+			<manifest>
+				<attribute name="Main-class" value="com.zdm.test.Test" />
+			</manifest>
+		</jar>
+
+		<!--  运行java文件 -->
+		<!--java classname="com.zdm.test.Test">
+			<classpath>
+				<pathelement path="${basedir}/build/classes"/>
+			</classpath>
+		</java -->
+
+	</target>
+
+	<target name="junit" depends="compile">
+		<delete dir="${target.report.dir}" />
+		<mkdir dir="${target.report.dir}" />
+
+		<junit printsummary="yes" fork="yes">
+			<formatter type="plain" usefile="false" />
+			<formatter type="xml" />
+			<classpath>
+				<fileset dir="${lib}" includes="*.jar" />
+				<pathelement path="${basedir}/build/classes" />
+			</classpath>
+			<batchtest todir="${target.report.dir}">
+				<fileset dir="${basedir}/build/classes">
+					<include name="**/testcase/*Test.*" />
+				</fileset>
+			</batchtest>
+
+		</junit>
+
+		<delete dir="${target.report.dir}/html" />
+		<mkdir dir="${target.report.dir}/html" />
+		<junitreport todir="${target.report.dir}">
+			<fileset dir="${target.report.dir}">
+				<include name="TEST-*.xml" />
+			</fileset>
+			<report todir="${target.report.dir}/html" />
+		</junitreport>
+
+	</target>
+
+
+</project>
