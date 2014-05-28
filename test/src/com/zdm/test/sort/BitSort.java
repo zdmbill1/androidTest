@@ -12,7 +12,7 @@ public class BitSort {
 
 	/**
 	 * 位图排序
-	 * 
+	 * {1,2,5,7}可以用01100101来表示
 	 * @param args
 	 */
 	public static void main(String[] args) {

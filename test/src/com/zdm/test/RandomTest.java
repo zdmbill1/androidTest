@@ -23,7 +23,7 @@ import com.zdm.test.sort.QuickSort;
  */
 public class RandomTest {
 
-	final static int num = (int) Math.pow(10, 6);
+	final static int num = (int) Math.pow(10, 7);
 	final static int max = (int) Math.pow(10, 8);
 	/**
 	 * @param args
@@ -32,7 +32,7 @@ public class RandomTest {
 	 */
 	public static void main(String[] args) throws IOException {
 		for (int i = 0; i < 1; i++) {
-			 new Thread(new RandomTest().new MyThread("zdm"+i)).start();
+//			 new Thread(new RandomTest().new MyThread("zdm"+i)).start();
 		}
 //			createRandomNums();
 //			readRandomNums();
