@@ -1,6 +1,9 @@
 package com.zdm.test.sort;
 
+import java.lang.management.ManagementFactory;
 import java.util.BitSet;
+
+import com.sun.management.OperatingSystemMXBean;
 
 class LotsOfBooleans {
 	boolean a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, aa, ab, ac, ad, ae, af;
@@ -88,8 +91,14 @@ public class TestMemeory {
 		System.out.println("totalMemory=" + runtime.totalMemory());
 	}
 
+	/**
+	 * @return
+	 * 都不准确
+	 */
 	private static long getMemory() {
-		Runtime runtime = Runtime.getRuntime();
-		return runtime.totalMemory() - runtime.freeMemory();
+//		Runtime runtime = Runtime.getRuntime();
+//		return runtime.totalMemory() - runtime.freeMemory();
+		OperatingSystemMXBean osmb = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+		return osmb.getTotalPhysicalMemorySize() - osmb.getFreePhysicalMemorySize();
 	}
 }
