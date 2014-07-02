@@ -11,8 +11,8 @@ public class BitSort {
 	static int[] A = null;
 
 	/**
-	 * 位图排序
-	 * {1,2,5,7}可以用01100101来表示
+	 * 位图排序 {1,2,5,7}可以用01100101来表示
+	 * 
 	 * @param args
 	 */
 	public static void main(String[] args) {
@@ -24,20 +24,19 @@ public class BitSort {
 			System.out.print(data[i] + " ");
 		}
 		System.out.println();
-		
-		int a=-1;
+
+		int a = -1;
 		System.out.println(Integer.toBinaryString(a));
 		System.out.println(Integer.toBinaryString(a).length());
-		System.out.println(Integer.toBinaryString(a>>1));
-		System.out.println(a>>1);
-		
+		System.out.println(Integer.toBinaryString(a >> 1));
+		System.out.println(a >> 1);
+
 	}
 
 	/**
 	 * @param array
 	 * @param max
-	 *            简单明了效率高 
-	 *            BitSet以64的倍数来申请，即每次申请64，new BitSet(128),new
+	 *            简单明了效率高 BitSet以64的倍数来申请，即每次申请64，new BitSet(128),new
 	 *            BitSet(65)空间一致 除开64以下，64以上的时候每次增加8字节，即按位存储
 	 */
 	public static void bitSetSort(int[] array, int max) {
@@ -57,13 +56,14 @@ public class BitSort {
 	/**
 	 * @param array
 	 * @param max
-	 * 严格按位操作，1个int=4byte=32bit
+	 *            严格按位操作，1个int=4byte=32bit
 	 */
 	public static void bitsort(int[] array, int max) {
-//		MAX = max;
+		// MAX = max;
 		A = new int[(1 + max / WORDLENGTH)];
-		for (int i = 0; i < array.length; i++)
+		for (int i = 0; i < array.length; i++) {
 			set(array[i]);
+		}
 		int j = 0;
 		for (int i = 0; i < max; i++) {
 			if (test(i)) {
@@ -74,10 +74,10 @@ public class BitSort {
 	}
 
 	// 将A[i>>SHIFT]的第(i & MASK)位置1
-	//i>>SHIFT等效于i/(2^SHIFT),这里就是除32取整
-	//i & MASK等效2^SHIFT-1取余
+	// i>>SHIFT等效于i/(2^SHIFT),这里就是除32取整
+	// i & MASK等效2^SHIFT-1取余
 	public static void set(int i) {
-		A[i >> SHIFT] =A[i >> SHIFT]| (1 << (i & MASK));
+		A[i >> SHIFT] = A[i >> SHIFT] | (1 << (i & MASK));
 	}
 
 	// 测试A[i>>SHIFT]的第(i & MASK)位置是否为1

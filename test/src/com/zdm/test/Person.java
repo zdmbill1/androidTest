@@ -4,7 +4,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-public class Person {
+public class Person implements Cloneable {
 
 	private String name;
 	private int id;
@@ -50,4 +50,17 @@ public class Person {
 
 	}
 
+	@Override
+	protected Object clone()  {
+		try {
+			return super.clone();
+		} catch (CloneNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+		
+	}
+
+	
 }

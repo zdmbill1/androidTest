@@ -16,6 +16,8 @@ import java.util.Random;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang.StringUtils;
+
 public class Test {
 
 	/**
@@ -87,11 +89,11 @@ public class Test {
 				System.out.println(address.getHostAddress() +" is not correct.");
 			}
 			
-			if(address.isReachable(5000)){
-				System.out.println("Success");
-			}else{
-				System.out.println("Fail");
-			}
+//			if(address.isReachable(5000)){
+//				System.out.println("Success");
+//			}else{
+//				System.out.println("Fail");
+//			}
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -202,6 +204,26 @@ public class Test {
 		System.out.println(str.split("'")[1]);
 		
 		System.out.println(System.currentTimeMillis());
+		
+		Person p=new Person("zdm", 1);
+		Person p1=(Person) p.clone();
+		p1.setName("zdm1");
+		System.out.println(p.getName());
+		System.out.println(p1.getName());
+		
+		char c='0';
+		
+		System.out.println((int)c);
+		
+		StringBuffer sb=new StringBuffer();
+		sb.append("a").append("b").append("c");
+		sb.delete(0, 1);
+		System.out.println(sb.toString());
+
+		String str1="hello11";
+		String str2=str1;
+		str1="change hello";
+		System.out.println(str2);
 	}
 	
 	public void t(){

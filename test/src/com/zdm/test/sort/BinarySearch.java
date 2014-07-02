@@ -12,38 +12,41 @@ public class BinarySearch {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		int[] tmp = new int[10100000];
-		for (int i = 0; i < 10100000; i++) {
+		int[] tmp = new int[5];
+		for (int i = 0; i < 5; i++) {
 			tmp[i] = i * 2;
 		}
 
+		System.out.println(find(tmp, 8));
+		System.out.println("count=" + count);
+		
 		for (int n : tmp) {
 			// System.out.print(n + ",");
 		}
-		long startTime = System.currentTimeMillis();
-//		System.gc();
-		long startMem = getMemory();
-		System.out.println("start");
-		// System.out.println(find(tmp, 3, 0, tmp.length));
-		System.out.println(find(tmp, 2));
-		System.out.println("count=" + count);
-
-		for (int i = 0; i < 1000000; i++) {
-			find(tmp, 2);
-		}
-		long endTime = System.currentTimeMillis();
-		// System.gc();
-		long endMem = getMemory();
-		System.out.println("方法1耗时：" + (endTime - startTime) + "ms,消耗内存："
-				+ (endMem - startMem) + "byte");
-		count = 0;
-		System.out.println(find(tmp, 2, 0, tmp.length));
-		System.out.println("count=" + count);
-		for (int i = 0; i < 1000000; i++) {
-			find(tmp, 2, 0, tmp.length);
-		}
-		System.out.println("方法2耗时：" + (System.currentTimeMillis() - endTime)
-				+ "ms,消耗内存：" + (getMemory() - endMem) + "byte");
+//		long startTime = System.currentTimeMillis();
+////		System.gc();
+//		long startMem = getMemory();
+//		System.out.println("start");
+//		// System.out.println(find(tmp, 3, 0, tmp.length));
+//		System.out.println(find(tmp, 2));
+//		System.out.println("count=" + count);
+//
+//		for (int i = 0; i < 1000000; i++) {
+//			find(tmp, 2);
+//		}
+//		long endTime = System.currentTimeMillis();
+//		// System.gc();
+//		long endMem = getMemory();
+//		System.out.println("方法1耗时：" + (endTime - startTime) + "ms,消耗内存："
+//				+ (endMem - startMem) + "byte");
+//		count = 0;
+//		System.out.println(find(tmp, 2, 0, tmp.length));
+//		System.out.println("count=" + count);
+//		for (int i = 0; i < 1000000; i++) {
+//			find(tmp, 2, 0, tmp.length);
+//		}
+//		System.out.println("方法2耗时：" + (System.currentTimeMillis() - endTime)
+//				+ "ms,消耗内存：" + (getMemory() - endMem) + "byte");
 	}
 
 	public static int find(int[] array, int num) {
@@ -51,7 +54,7 @@ public class BinarySearch {
 		if (array[start] == num) {
 			return start;
 		} else if (array[end - 1] == num) {
-			return end;
+			return end-1;
 		}
 
 		while (start < mid) {
