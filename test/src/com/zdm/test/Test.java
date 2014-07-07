@@ -224,6 +224,41 @@ public class Test {
 		String str2=str1;
 		str1="change hello";
 		System.out.println(str2);
+		
+		User user=new User("zdm", 1);
+		Test t=new Test();
+		t.testNull(user);
+		User user1=t.testChangeObj(user);
+		System.out.println(user1);
+		System.out.println(user);
+	}
+	
+	/**
+	 * @param u
+	 * @return
+	 * 属性会发生变化，整个对象变了，以前obj不会改变;
+	 */
+	public User testChangeObj(User u){
+		u=new User("zdm111", 1);
+//		u=null;
+		return u;
+	}
+	
+	/**
+	 * @param u
+	 * 不会改变传入对象
+	 */
+	public void testNull(User u){
+		u=null;
+	}
+	
+	
+	/**
+	 * @param u
+	 * 改变传入对象属性
+	 */
+	public void testChange(User u){
+		u.setName("haha");
 	}
 	
 	public void t(){
