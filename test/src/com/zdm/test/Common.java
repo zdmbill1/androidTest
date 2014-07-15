@@ -4,7 +4,7 @@ public class Common {
 	public synchronized void synchronizedMethod1() {
 		System.out.println("synchronizedMethod1 called");
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(2000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
